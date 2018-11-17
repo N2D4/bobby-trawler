@@ -1,20 +1,12 @@
-#include <vector>
-#include "chessboard.cpp"
-using namespace std;
+#include "engine.h"
 
 
 
+void ChessEngine::startNewGame() {
+    board = ChessBoard();
+}
 
-class ChessEngine {
-    ChessBoard board;
-
-    void startNewGame() {
-        board = ChessBoard();
-    }
-
-    ChessMove findBestMove() {
-        // TODO
-        return ChessMove();
-    }
-
-};
+ChessMove ChessEngine::findBestMove() {
+    // TODO
+    return ChessMove();
+}

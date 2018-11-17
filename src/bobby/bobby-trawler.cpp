@@ -1,32 +1,18 @@
-#include <iostream>
-#include <vector>
-#include "engine.cpp"
-using namespace std;
+#include "bobby-trawler.h"
 
-
-const vector<string> WHITESPACES = {" ", "\t", "\n", "\r\n"};
-
-
-
-// function declarations
-string waitforcmd(string str);
-string waitforcmd(vector<string> v);
-vector<string> readcmd();
-pair<size_t, size_t> findany(string s, vector<string> find, size_t start);
-vector<string> nonEmptySplits(string str);
-
+const std::vector<std::string> WHITESPACES = {" ", "\t", "\n", "\r\n"};
 
 
 int main() {
     // Do the UCI stuff (it's how we talk to the UI)
     waitforcmd("uci");
-    cout << "id name BobbyTrawler" << endl;
-    cout << "id author some cool people" << endl;
-    cout << "uciok" << endl;
+    std::cout << "id name BobbyTrawler" << std::endl;
+    std::cout << "id author some cool people" << std::endl;
+    std::cout << "uciok" << std::endl;
 
     // Tell the GUI we're ready
     waitforcmd("isready");
-    cout << "readyok" << endl;
+    std::cout << "readyok" << std::endl;
 
     
 
@@ -38,36 +24,36 @@ int main() {
 
 
 
-string waitforcmd(string str) {
-    return waitforcmd((vector<string>) {str});
+std::string waitforcmd(std::string str) {
+    return waitforcmd((std::vector<std::string>) {str});
 }
 
-string waitforcmd(vector<string> v) {
+std::string waitforcmd(std::vector<std::string> v) {
     while (true) {
-        vector<string> launchcmd = readcmd();
+        std::vector<std::string> launchcmd = readcmd();
         if (std::find(v.begin(), v.end(), launchcmd[0]) != v.end()) {
             return launchcmd[0];
         }
     }
 }
 
-vector<string> readcmd() {
-    vector<string> res;
+std::vector<std::string> readcmd() {
+    std::vector<std::string> res;
     while (res.empty()) {
-        string str;
-        getline(cin, str);
+        std::string str;
+        getline(std::cin, str);
         res = nonEmptySplits(str);        
     }
     return res;
 }
 
-vector<string> nonEmptySplits(string str) {
-    vector<string> res;
+std::vector<std::string> nonEmptySplits(std::string str) {
+    std::vector<std::string> res;
     size_t pos = 0;
-    pair<size_t, size_t> npos;
+    std::pair<size_t, size_t> npos;
 
     while ((npos = findany(str, WHITESPACES, pos)).first < str.length()) {
-        string s = str.substr(pos, npos.first - pos);
+        std::string s = str.substr(pos, npos.first - pos);
         if (s.length() > 0) {
             res.push_back(s);
         }
@@ -81,10 +67,10 @@ vector<string> nonEmptySplits(string str) {
     return res;
 }
 
-pair<size_t, size_t> findany(string s, vector<string> find, size_t start) {
+std::pair<size_t, size_t> findany(std::string s, std::vector<std::string> find, size_t start) {
     size_t min = s.length();
     size_t npos = min;
-    for (string f : find) {
+    for (std::string f : find) {
         size_t m = s.find(f, start);
         size_t n = m + f.length();
         if (m < min || (m == min && n > npos)) {
@@ -92,5 +78,5 @@ pair<size_t, size_t> findany(string s, vector<string> find, size_t start) {
             npos = n;
         }
     }
-    return pair<size_t, size_t>(min, npos);
+    return std::pair<size_t, size_t>(min, npos);
 }
