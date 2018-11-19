@@ -2,7 +2,7 @@
 #define BOBBY_TRAWLER_BOBBY_ENGINE_H_
 
 #include <vector>
-#include "chessboard.h"
+#include "board/chessboard.h"
 
 class ChessEngine {
     ChessBoard board;
