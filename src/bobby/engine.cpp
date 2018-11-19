@@ -6,7 +6,7 @@ void ChessEngine::startNewGame() {
     board = ChessBoard();
 }
 
-ChessMove ChessEngine::findBestMove() {
+BoardMove ChessEngine::findBestMove() {
     // TODO
-    return ChessMove();
+    return BoardMove("e2", "e4");
 }

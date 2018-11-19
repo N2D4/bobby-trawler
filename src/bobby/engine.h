@@ -7,7 +7,7 @@
 class ChessEngine {
     ChessBoard board;
     void startNewGame();
-    ChessMove findBestMove();
+    BoardMove findBestMove();
 };
 
 #endif  // BOBBY_TRAWLER_BOBBY_ENGINE_H_

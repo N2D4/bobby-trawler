@@ -4,6 +4,8 @@ const std::vector<std::string> WHITESPACES = {" ", "\t", "\n", "\r\n"};
 
 
 int main() {
+    std::cout << "Type uci, then follow up with isready to get started" << std::endl;
+
     // Do the UCI stuff (it's how we talk to the UI)
     waitforcmd("uci");
     std::cout << "id name BobbyTrawler" << std::endl;
@@ -14,7 +16,8 @@ int main() {
     waitforcmd("isready");
     std::cout << "readyok" << std::endl;
 
-    
+    ChessBoard board = ChessBoard();
+    std::cout << board.toHumanReadable(true) << std::endl;
 
 
     return 0;
