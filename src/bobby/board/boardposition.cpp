@@ -8,6 +8,22 @@ BoardPosition::BoardPosition(int column, int row) {
 
 
 
+bool BoardPosition::isValid() {
+    return ((unsigned int) (this->column | this->row)) < 8;
+}
+
+
+bool BoardPosition::operator==(const BoardPosition& w) {
+    return this->column == w.column && this->row == w.row;
+}
+bool BoardPosition::operator!=(const BoardPosition& w) {
+    return !(*this == w);
+}
+
+
+
+
+
 
 // Casting from/to std::string
 BoardPosition::BoardPosition(const std::string& str) { *this = str; }

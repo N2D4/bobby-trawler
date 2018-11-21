@@ -1,6 +1,6 @@
 #include "chessboard.h"
 
-ChessBoard::ChessBoard() {
+ChessBoard::ChessBoard() : curColor(BoardSquare::Color::WHITE) {
     BoardSquare square = BoardSquare::EMPTY;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
@@ -29,13 +29,64 @@ BoardSquare& ChessBoard::operator[](BoardPosition position) {
 
 
 
+void ChessBoard::move(BoardMove move) {
+    (*this)[move.to] = (*this)[move.from];
+    (*this)[move.from] = BoardSquare::EMPTY;
+    this->curColor = !this->curColor;
+}
 
+
+
+
+
+
+bool ChessBoard::isCheck() {
+    // Find king position
+    BoardSquare kingSquare(this->curColor, BoardSquare::Type::KING);
+    BoardPosition king(0, 0);
+    for (king.column = 0; king.column < 8; king.column++) {
+        for (king.row = 0; king.row < 8; king.row++) {
+            if ((*this)[king] == kingSquare) {
+                goto outofloop;
+            }
+        }
+    }
+    outofloop:
+
+    // Go horizontally, vertically, and diagonally and find the closest piece each
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            if (i == 0 && j == 0) {
+                cont: continue;
+            }
+
+            BoardPosition pos = king;
+            do {
+                pos.column += i;
+                pos.row += j;
+                if (!pos.isValid()) goto cont;
+            } while ((*this)[pos].isEmpty());
+
+            BoardSquare sq = (*this)[pos];
+            if (sq.color() == kingSquare.color()) continue;
+            if (!BoardMove(pos, king).isPossibleFor(sq, true)) continue;
+            return true;
+        }
+    }
+    return false;
+}
 
 bool ChessBoard::isLegal(BoardMove move) {
-    BoardSquare square = (*this)[move.from];
-    if (square.isEmpty()) return false;
+    BoardSquare fromSq = (*this)[move.from];
+    BoardSquare toSq = (*this)[move.to];
+    if (fromSq.color() != this->curColor) return false;
+    if (toSq.color() == this->curColor) return false;
+    if (move.from == move.to) return false;
 
-    return true; // TODO
+    bool isCapture = toSq.color() != BoardSquare::Color::EMPTY;
+    // TODO
+
+    return true;
 }
 
 

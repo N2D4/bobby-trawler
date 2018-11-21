@@ -10,6 +10,11 @@ struct BoardPosition {
     int row;
 
     BoardPosition(int column, int row);
+
+    bool operator==(const BoardPosition& w);
+    bool operator!=(const BoardPosition& w);
+
+    bool isValid();
     
     // Implicit casting from/to C++ strings
     BoardPosition(const std::string& str);

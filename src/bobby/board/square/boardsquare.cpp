@@ -2,9 +2,11 @@
 
 
 const int BoardSquare::COLOR_MASK                    = 0b11      << 6;
+const BoardSquare::Color BoardSquare::Color::EMPTY   = 0b00      << 6;
 const BoardSquare::Color BoardSquare::Color::WHITE   = 0b10      << 6;
 const BoardSquare::Color BoardSquare::Color::BLACK   = 0b01      << 6;
-const int BoardSquare::PIECE_MASK                    =   0b111111;
+const int BoardSquare::TYPE_MASK                     =   0b111111;
+const BoardSquare::Type BoardSquare::Type::EMPTY     =   0b000000;
 const BoardSquare::Type BoardSquare::Type::PAWN      =   0b100000;
 const BoardSquare::Type BoardSquare::Type::KNIGHT    =   0b010000;
 const BoardSquare::Type BoardSquare::Type::BISHOP    =   0b001000;
@@ -30,8 +32,23 @@ const BoardSquare BoardSquare::BLACK_KING   = Color::BLACK.data | Type::KING.dat
 
 BoardSquare::BoardSquare() : IntStruct(BoardSquare::EMPTY) { }
 BoardSquare::BoardSquare(int data) : IntStruct(data) { }
+BoardSquare::BoardSquare(Color color, Type type) : BoardSquare(color.data | type.data) { }
 BoardSquare::Type::Type(int data) : IntStruct(data) { }
 BoardSquare::Color::Color(int data) : IntStruct(data) { }
+
+BoardSquare::Color BoardSquare::color() {
+    return Color(this->data & BoardSquare::COLOR_MASK);
+}
+int BoardSquare::colorId() {
+    return (__builtin_clz(this->data) - __builtin_clz(BoardSquare::Color::WHITE.data));
+}
+
+BoardSquare::Type BoardSquare::type() {
+    return Type(this->data & BoardSquare::TYPE_MASK);
+}
+int BoardSquare::typeId() {
+    return __builtin_ctz(this->data);
+}
 
 bool BoardSquare::isEmpty() {
     return *this == BoardSquare::EMPTY;
@@ -44,8 +61,12 @@ std::string BoardSquare::asUnicode() {
         std::string res;
         res.push_back(0xE2);
         res.push_back(0x99);
-        int sq = this->data;
-        res.push_back((0x94 + 6 * (__builtin_clz(sq) - __builtin_clz(BoardSquare::Color::WHITE.data)) + __builtin_ctz(sq)));
+        res.push_back(0x94 + 6 * this->colorId() + this->typeId());
         return res;
     }
+}
+
+
+BoardSquare::Color BoardSquare::Color::operator!() {
+    return BoardSquare::Color(this->data ^ BoardSquare::COLOR_MASK);
 }

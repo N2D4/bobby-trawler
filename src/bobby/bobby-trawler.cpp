@@ -16,8 +16,24 @@ int main() {
     waitforcmd("isready");
     std::cout << "readyok" << std::endl;
 
+    std::cout << "Alright! Now enter a 4-character move, eg. e2e4" << std::endl;
+
     ChessBoard board = ChessBoard();
-    std::cout << board.toHumanReadable(true) << std::endl;
+    while (true) {
+        std::cout << board.toHumanReadable(true) << std::endl;
+        if (board.isCheck()) std::cout << "Check!" << std::endl;
+
+        std::cout << "Move: ";
+        std::string movestr;
+        std::cin >> movestr;
+        BoardMove move = movestr;
+
+        if (board.isLegal(move)) {
+            board.move(move);
+        } else {
+            std::cout << "Move not legal!" << std::endl;
+        }
+    }
 
 
     return 0;
