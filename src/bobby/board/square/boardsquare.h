@@ -10,7 +10,7 @@ struct BoardSquare : IntStruct {
         BoardSquare(int data);
 
         static const int COLOR_MASK;
-        static const int PIECE_MASK;
+        static const int TYPE_MASK;
 
 
     public:
@@ -22,6 +22,7 @@ struct BoardSquare : IntStruct {
 
             public:
                 static const Color WHITE, BLACK, EMPTY;
+                Color operator!();
         };
 
         struct Type : IntStruct {
@@ -39,6 +40,12 @@ struct BoardSquare : IntStruct {
         static const BoardSquare BLACK_PAWN, BLACK_KNIGHT, BLACK_BISHOP, BLACK_ROOK, BLACK_QUEEN, BLACK_KING;
 
         BoardSquare();
+        BoardSquare(Color color, Type type);
+
+        Color color();
+        Type type();
+        int colorId();
+        int typeId();
 
         bool isEmpty();
         std::string asUnicode();
