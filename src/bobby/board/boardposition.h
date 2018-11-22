@@ -5,6 +5,12 @@
 #include <vector>
 #include "square/boardsquare.h"
 
+/**
+ * A simple structure for storing two values from 0-7, column and row, usually used to signal a position on the board,
+ * whereas (column=0, row=0) is square a1. Strings in a form like a1, e4, g6 can implicitly be casted to a board
+ * position, but that should only happen to parse user/GUI input as it is considerably less efficient than using the
+ * (int, int) constructor.
+ */
 struct BoardPosition {
     int column;
     int row;

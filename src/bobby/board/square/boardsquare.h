@@ -4,7 +4,13 @@
 #include <iostream>
 #include "various/intstruct.h"
 
-
+/**
+ * A structure representing either a single figure, or an empty square.
+ * 
+ * A board square can be either one of the six figures of one of the two colors, or empty. Internally, it is stored as
+ * an integer in the binary format 0bBWPKBRQK, whereas one of WB is set for white/black, and one of PKBRQK is set for
+ * the figure type. The empty square is stored as 0. This allows some efficient binary trickery.
+ */
 struct BoardSquare : IntStruct {
     private:
         BoardSquare(int data);
@@ -44,7 +50,16 @@ struct BoardSquare : IntStruct {
 
         Color color();
         Type type();
+        /**
+         * A function returning 0 for white figures, 1 for black figures, and -1 for empty squares. In most cases,
+         * BoardSquare::color() should be preferred.
+         */
         int colorId();
+        /**
+         * A function returning an integer determining the figure type; 0 for king, 1 for queen, 2 for
+         * rook, 3 for bishop, 4 for knight, 5 for pawn, and -1 for empty square. In most cases, BoardSquare::type()
+         * should be preferred.
+         */
         int typeId();
 
         bool isEmpty();
