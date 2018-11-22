@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include "board/chessboard.h"
 
+/**
+ * The class containing the code for the Bobby Trawler chess engine itself.
+ */
 class ChessEngine {
     private:
         ChessBoard& board;

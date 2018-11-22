@@ -1,5 +1,5 @@
 # bobby-trawler
-Just another chess computer
+Just another chess computer. Heavy WIP
 
 
 
