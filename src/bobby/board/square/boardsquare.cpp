@@ -40,14 +40,14 @@ BoardSquare::Color BoardSquare::color() {
     return Color(this->data & BoardSquare::COLOR_MASK);
 }
 int BoardSquare::colorId() {
-    return (__builtin_clz(this->data) - __builtin_clz(BoardSquare::Color::WHITE.data));
+    return this->isEmpty() ? -1 : (__builtin_clz(this->data) - __builtin_clz(BoardSquare::Color::WHITE.data));
 }
 
 BoardSquare::Type BoardSquare::type() {
     return Type(this->data & BoardSquare::TYPE_MASK);
 }
 int BoardSquare::typeId() {
-    return __builtin_ctz(this->data);
+    return this->isEmpty() ? -1 : __builtin_ctz(this->data);
 }
 
 bool BoardSquare::isEmpty() {

@@ -16,23 +16,38 @@ int main() {
     waitforcmd("isready");
     std::cout << "readyok" << std::endl;
 
-    std::cout << "Alright! Now enter a 4-character move, eg. e2e4" << std::endl;
+    std::cout << "Alright! Now enter a 4-character move, eg. 'e2e4', or 'go' to ask the engine" << std::endl;
 
     ChessBoard board = ChessBoard();
+    bool goForever = false;
     while (true) {
         std::cout << board.toHumanReadable(true) << std::endl;
         if (board.isCheck()) std::cout << "Check!" << std::endl;
 
-        std::cout << "Move: ";
         std::string movestr;
-        std::cin >> movestr;
-        BoardMove move = movestr;
+        if (!goForever) {
+            std::cout << "Move: ";
+            std::cin >> movestr;
+            if (movestr == "go4evah") goForever = true;
+        }
 
-        if (board.isLegal(move)) {
-            board.move(move);
+        BoardMove move = "a1a1";
+        if (goForever || movestr == "go") {
+            std::cout << "As a perfect AI, I choose... ";
+            move = ChessEngine(board).findBestMove();
+            std::this_thread::sleep_for(std::chrono::milliseconds(750));
+            std::cout << std::string(move) << "!" << std::endl;
+        } else {
+            move = movestr;
+        }
+
+        DetailedMove detailed = move.detailed(board);
+        if (board.isLegal(detailed)) {
+            board.move(detailed);
         } else {
             std::cout << "Move not legal!" << std::endl;
         }
+
     }
 
 

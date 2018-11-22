@@ -21,8 +21,12 @@ bool BoardMove::isPossibleFor(BoardSquare square, bool isCapture) {
     switch (square.typeId()) {
         case 5: {   // Pawn
             int rdir = square.color() == BoardSquare::Color::WHITE ? 1 : -1;
-            if (rdir != rdif) return false;
-            return isCapture ? cadif == 1 : (cdif == 0);
+            if (isCapture) {
+                return rdir == rdif && cadif == 1;
+            } else {
+                int fromr = this->from.row;
+                return cadif == 0 && (rdir == rdif || (rdif == 2 * rdir && (fromr == 1 || fromr == 6)));
+            }
         }
         case 4:    // Knight
             return cadif > 0 && radif > 0 && cadif + radif == 3;
@@ -33,10 +37,15 @@ bool BoardMove::isPossibleFor(BoardSquare square, bool isCapture) {
         case 1:    // Queen
             return cadif == radif || cadif == 0 || radif == 0;
         case 0:    // King
-            return cadif <= 1 || radif <= 1;
+            return cadif <= 1 && radif <= 1;
         default:
-            throw std::invalid_argument("invalid figure type");
+            return false;
     }
+}
+
+
+DetailedMove BoardMove::detailed(ChessBoard& board) {
+    return DetailedMove(this->from, this->to, board[this->to]);
 }
 
 
@@ -52,3 +61,13 @@ BoardMove::operator std::string() {
 // Casting from char*
 BoardMove::BoardMove(const char* str) : BoardMove(std::string(str)) { }
 BoardMove& BoardMove::operator= (const char* str) { return *this = std::string(str); }
+
+
+
+
+
+DetailedMove::DetailedMove(BoardPosition from, BoardPosition to, BoardSquare captured) : BoardMove(from, to), captured(captured) { }
+
+bool DetailedMove::isPossibleFor(BoardSquare square) {
+    return BoardMove::isPossibleFor(square, this->captured != BoardSquare::EMPTY);
+}

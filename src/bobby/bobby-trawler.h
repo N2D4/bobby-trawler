@@ -3,7 +3,10 @@
 
 #include <iostream>
 #include <vector>
+#include <chrono>
+#include <thread>
 #include "engine.h"
+#include "board/boardmoves.h"
 
 
 // function declarations
