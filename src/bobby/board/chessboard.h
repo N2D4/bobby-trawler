@@ -7,7 +7,14 @@
 #include "boardposition.h"
 #include "boardmoves.h"
 
+struct BoardMove;
+struct DetailedMove;
+
 class ChessBoard {
+    private:
+        bool isCheck(BoardSquare::Color color);
+
+
     public:
         BoardSquare squares[8][8];
         BoardSquare::Color curColor;
@@ -15,10 +22,11 @@ class ChessBoard {
         ChessBoard();
         BoardSquare& operator[](BoardPosition position);
 
-        void move(BoardMove move);
+        void move(DetailedMove move);
+        void revert(DetailedMove move);
 
         bool isCheck();
-        bool isLegal(BoardMove move);
+        bool isLegal(DetailedMove move);
 
         std::string toHumanReadable(bool ansi=false);
 };

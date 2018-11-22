@@ -2,11 +2,14 @@
 
 
 
-void ChessEngine::startNewGame() {
-    board = ChessBoard();
-}
+ChessEngine::ChessEngine(ChessBoard& board) : board(board) { }
 
-BoardMove ChessEngine::findBestMove() {
+DetailedMove ChessEngine::findBestMove() {
     // TODO
-    return BoardMove("e2", "e4");
+    while (true) {
+        BoardPosition from = BoardPosition(rand() % 8, rand() % 8);
+        BoardPosition to = BoardPosition(rand() % 8, rand() % 8);
+        DetailedMove move = BoardMove(from, to).detailed(this->board);
+        if (this->board.isLegal(move)) return move;
+    }
 }

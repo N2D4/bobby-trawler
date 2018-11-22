@@ -5,6 +5,10 @@
 #include <vector>
 #include <stdexcept>
 #include "boardposition.h"
+#include "chessboard.h"
+
+struct DetailedMove;
+class ChessBoard;
 
 struct BoardMove {
     BoardPosition from;
@@ -16,6 +20,8 @@ struct BoardMove {
     bool operator!=(const BoardMove& w);
     
     bool isPossibleFor(BoardSquare square, bool isCapture);
+
+    DetailedMove detailed(ChessBoard& board);
     
 
     // Implicit casting from/to C++ strings
@@ -26,6 +32,18 @@ struct BoardMove {
     // Implicit casting from C strings (for literals)
     BoardMove(const char* str);
     BoardMove& operator= (const char* str);
+};
+
+
+struct DetailedMove : BoardMove {
+    friend BoardMove;
+
+    private:
+        DetailedMove(BoardPosition from, BoardPosition to, BoardSquare captured);
+    
+    public:
+        BoardSquare captured;
+        bool isPossibleFor(BoardSquare square);
 };
 
 #endif  // BOBBY_TRAWLER_BOBBY_BOARDMOVES_H_

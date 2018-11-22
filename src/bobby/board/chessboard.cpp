@@ -29,9 +29,14 @@ BoardSquare& ChessBoard::operator[](BoardPosition position) {
 
 
 
-void ChessBoard::move(BoardMove move) {
+void ChessBoard::move(DetailedMove move) {
     (*this)[move.to] = (*this)[move.from];
     (*this)[move.from] = BoardSquare::EMPTY;
+    this->curColor = !this->curColor;
+}
+void ChessBoard::revert(DetailedMove move) {
+    (*this)[move.from] = (*this)[move.to];
+    (*this)[move.to] = move.captured;
     this->curColor = !this->curColor;
 }
 
@@ -39,10 +44,13 @@ void ChessBoard::move(BoardMove move) {
 
 
 
-
 bool ChessBoard::isCheck() {
+    return this->isCheck(this->curColor);
+}
+
+bool ChessBoard::isCheck(BoardSquare::Color color) {
     // Find king position
-    BoardSquare kingSquare(this->curColor, BoardSquare::Type::KING);
+    BoardSquare kingSquare(color, BoardSquare::Type::KING);
     BoardPosition king(0, 0);
     for (king.column = 0; king.column < 8; king.column++) {
         for (king.row = 0; king.row < 8; king.row++) {
@@ -73,19 +81,63 @@ bool ChessBoard::isCheck() {
             return true;
         }
     }
+
+    // Check knights in range
+    for (int i = -2; i <= 2; i++) {
+        for (int j = -2; j <= 2; j++) {
+            if (std::abs(i) + std::abs(j) != 3) continue;
+            BoardPosition pos = BoardPosition(king.column + i, king.row + j);
+            if (!pos.isValid()) continue;
+            BoardSquare sq = (*this)[pos];
+            if (sq.color() == kingSquare.color()) continue;
+            if (!BoardMove(pos, king).isPossibleFor(sq, true)) continue;
+            return true;
+        }
+    }
+
+    // No threats, no check!
     return false;
 }
 
-bool ChessBoard::isLegal(BoardMove move) {
+
+
+bool ChessBoard::isLegal(DetailedMove move) {
     BoardSquare fromSq = (*this)[move.from];
     BoardSquare toSq = (*this)[move.to];
+
+    // Simple cases
     if (fromSq.color() != this->curColor) return false;
     if (toSq.color() == this->curColor) return false;
     if (move.from == move.to) return false;
 
+    // That figure can't move like that
     bool isCapture = toSq.color() != BoardSquare::Color::EMPTY;
-    // TODO
+    if (!move.isPossibleFor(fromSq)) return false;
 
+    // Filter out cases where there is another figure inbetween
+    if (fromSq.type() != BoardSquare::Type::KNIGHT) {
+        #define sgn(x, y)  (x < y) - (y < x)  // -1 if x < y, 0 if x == y, +1 if x > y
+        int iInc = sgn(move.from.column, move.to.column);
+        int jInc = sgn(move.from.row, move.to.row);
+        BoardPosition pos = move.from;
+        pos.column += iInc;
+        pos.row += jInc;
+        while (true) {
+            pos.column += iInc;
+            pos.row += jInc;
+            if (sgn(pos.column, move.to.column) == iInc && sgn(pos.row, move.to.row) == jInc) break;
+            if (!(*this)[pos].isEmpty()) return false;
+        }
+        #undef sgn
+    }
+
+    // Can't move into check
+    this->move(move);
+    bool wasCheck = this->isCheck(fromSq.color());
+    this->revert(move);
+    if (!wasCheck) return false;
+
+    // Legal move!
     return true;
 }
 
