@@ -110,22 +110,20 @@ bool ChessBoard::isLegal(DetailedMove move) {
     if (toSq.color() == this->curColor) return false;
     if (move.from == move.to) return false;
 
-    // That figure can't move like that
+    // That piece can't move like that
     bool isCapture = toSq.color() != BoardSquare::Color::EMPTY;
     if (!move.isPossibleFor(fromSq)) return false;
 
-    // Filter out cases where there is another figure inbetween
+    // Filter out cases with another piece in the way
     if (fromSq.type() != BoardSquare::Type::KNIGHT) {
         #define sgn(x, y)  (x < y) - (y < x)  // -1 if x < y, 0 if x == y, +1 if x > y
         int iInc = sgn(move.from.column, move.to.column);
         int jInc = sgn(move.from.row, move.to.row);
         BoardPosition pos = move.from;
-        pos.column += iInc;
-        pos.row += jInc;
         while (true) {
             pos.column += iInc;
             pos.row += jInc;
-            if (sgn(pos.column, move.to.column) == iInc && sgn(pos.row, move.to.row) == jInc) break;
+            if (sgn(pos.column, move.to.column) != iInc || sgn(pos.row, move.to.row) != jInc) break;
             if (!(*this)[pos].isEmpty()) return false;
         }
         #undef sgn
@@ -135,7 +133,7 @@ bool ChessBoard::isLegal(DetailedMove move) {
     this->move(move);
     bool wasCheck = this->isCheck(fromSq.color());
     this->revert(move);
-    if (!wasCheck) return false;
+    if (wasCheck) return false;
 
     // Legal move!
     return true;

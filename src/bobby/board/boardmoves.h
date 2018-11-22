@@ -29,8 +29,8 @@ struct BoardMove {
     bool operator!=(const BoardMove& w);
     
     /**
-     * Returns a boolean value indicating whether the given BoardSquare figure can move in that shape. In case that
-     * the figure is a pawn, the second argument isCapture is used to determine whether it can move diagonally or not.
+     * Returns a boolean value indicating whether the given BoardSquare piece can move in that shape. In case that
+     * the piece is a pawn, the second argument isCapture is used to determine whether it can move diagonally or not.
      * If the square is empty, false will be returned.
      */
     bool isPossibleFor(BoardSquare square, bool isCapture);
@@ -51,7 +51,7 @@ struct BoardMove {
 
 /**
  * A fairly complex struct representing a chess move from some position from to a position to, with some additional
- * information related to the board state required to revert the board state back, such as the figure captured.
+ * information related to the board state required to revert the board state back, such as the piece captured.
  * 
  * This structure can only be created by calling the .detailed(...) method of BoardMove. If used on any board other than
  * the board used to create this DetailedMove (or the board's state has changed), behaviour is undefined.
