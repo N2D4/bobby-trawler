@@ -18,29 +18,38 @@ int main() {
 
     std::cout << "Alright! Now enter a 4-character move, eg. 'e2e4', or 'go' to ask the engine" << std::endl;
 
+
+
+
+    // Ask for moves, or let the AI play
     ChessBoard board = ChessBoard();
-    bool goForever = false;
+    bool goForever = false;                                         // true if the AI should play automatically instead
     while (true) {
+        // Print out board and message if check
         std::cout << board.toHumanReadable(true) << std::endl;
         if (board.isCheck()) std::cout << "Check!" << std::endl;
 
+        // Read in what the user entered, if the AI isn't set to play automatically
         std::string movestr;
         if (!goForever) {
             std::cout << "Move: ";
             std::cin >> movestr;
+            // If the user enters 'go4evah', make the AI start playing automatically
             if (movestr == "go4evah") goForever = true;
         }
 
+
         BoardMove move = "a1a1";
-        if (goForever || movestr == "go") {
-            std::cout << "As a perfect AI, I choose... ";
+        if (goForever || movestr == "go") {                         // If either the AI is playing automatically or the
+            std::cout << "As a perfect AI, I choose... ";           // user entered 'go', ask the AI for the move
             move = ChessEngine(board).findBestMove();
             std::this_thread::sleep_for(std::chrono::milliseconds(750));
             std::cout << std::string(move) << "!" << std::endl;
-        } else {
-            move = movestr;
+        } else {                                                    // else, convert the string the user entered into a
+            move = movestr;                                         // move
         }
 
+        // Get DetailedMove object; see board/boardmoves.h for explanation
         DetailedMove detailed = move.detailed(board);
         if (board.isLegal(detailed)) {
             board.move(detailed);
