@@ -59,6 +59,7 @@ bool ChessBoard::isCheck(BoardSquare::Color color) {
             }
         }
     }
+    return false; // No king for whatever reason?
     outofloop:
 
     // Go horizontally, vertically, and diagonally and find the closest piece each
@@ -86,11 +87,14 @@ bool ChessBoard::isCheck(BoardSquare::Color color) {
     for (int i = -2; i <= 2; i++) {
         for (int j = -2; j <= 2; j++) {
             if (std::abs(i) + std::abs(j) != 3) continue;
+
             BoardPosition pos = BoardPosition(king.column + i, king.row + j);
             if (!pos.isValid()) continue;
+
             BoardSquare sq = (*this)[pos];
             if (sq.color() == kingSquare.color()) continue;
             if (!BoardMove(pos, king).isPossibleFor(sq, true)) continue;
+
             return true;
         }
     }
