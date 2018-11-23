@@ -23,7 +23,7 @@ int main() {
 
     // Ask for moves, or let the AI play
     ChessBoard board = ChessBoard();
-    bool goForever = false;                                         // true if the AI should play automatically instead
+    bool goForever = false;   // true if the AI should play automatically instead of asking the user
     while (true) {
         // Print out board and message if check
         std::cout << board.toHumanReadable(true) << std::endl;
