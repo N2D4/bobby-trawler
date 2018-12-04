@@ -40,6 +40,15 @@ int main() {
 
         if (movestr == "back") {
             board.revert();
+        } else if (movestr == "rem") {
+            std::cout << "Removing a piece. Position: ";
+            std::string remstr;
+            std::cin >> remstr;
+            board[remstr] = BoardSquare::EMPTY;
+            std::cout << "Removed piece. Note that this might cause glitches, eg. w/ castling if you remove a rook" << std::endl;
+        } else if (movestr == "undo") {
+            board.revert();
+            std::cout << "Reverted a move" << std::endl;
         } else {
             BoardMove move = "a1a1";
             if (goForever || movestr == "go") {                         // If either the AI is playing automatically or the

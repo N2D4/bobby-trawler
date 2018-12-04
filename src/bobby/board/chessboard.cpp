@@ -21,6 +21,9 @@ ChessBoard::ChessBoard() : curColor(BoardSquare::Color::WHITE) {
     (*this)["d8"] = BoardSquare::BLACK_QUEEN;
     (*this)["e1"] = BoardSquare::WHITE_KING;
     (*this)["e8"] = BoardSquare::BLACK_KING;
+
+    this->allowCastlingKingside = true;
+    this->allowCastlingQueenside = true;
 }
 
 BoardSquare& ChessBoard::operator[](BoardPosition position) {
@@ -30,6 +33,7 @@ BoardSquare& ChessBoard::operator[](BoardPosition position) {
 
 DetailedMove ChessBoard::createDetailedMove(BoardMove move) {
     DetailedMove::MoveType type = DetailedMove::MoveType::NORMAL;
+
     BoardSquare piece = (*this)[move.from];
     BoardSquare captured = (*this)[move.to];
 
@@ -39,7 +43,7 @@ DetailedMove ChessBoard::createDetailedMove(BoardMove move) {
         } else if (move.to.row == 0 || move.to.row == 7) {
             type = DetailedMove::MoveType::PROMOTION;
         } else {
-            if ((*this)[move.to] == BoardSquare::EMPTY && move.from.column != move.to.column) {
+            if (move.from.column != move.to.column && (*this)[move.to] == BoardSquare::EMPTY && this->moves.size() > 0) {
                 type = DetailedMove::MoveType::ENPASSANT;
                 captured = (*this)[this->moves.back().to];
             }
@@ -54,7 +58,10 @@ DetailedMove ChessBoard::createDetailedMove(BoardMove move) {
                 break;
         }
     }
-    return DetailedMove(move.from, move.to, captured, type);
+    int flags = 0;
+    if (allowCastlingKingside) flags |= 1;
+    if (allowCastlingQueenside) flags |= 2;
+    return DetailedMove(move.from, move.to, move.promoteTo, captured, type, flags);
 }
 
 
@@ -63,28 +70,43 @@ void ChessBoard::move(BoardMove move) {
     this->move(this->createDetailedMove(move));
 }
 void ChessBoard::move(DetailedMove move) {
+    BoardSquare piece = (*this)[move.from];
+
     this->moves.push_back(move);
 
     switch (move.type) {
         case DetailedMove::MoveType::PROMOTION:
-            // TODO Promotion
+            (*this)[move.to] = BoardSquare(this->curColor, move.promoteTo);
+            (*this)[move.from] = BoardSquare::EMPTY;
             break;
 
         case DetailedMove::MoveType::ENPASSANT:
             this->squares[move.to.column][move.from.row] = BoardSquare::EMPTY;
 
         default:
-            (*this)[move.to] = (*this)[move.from];
+            (*this)[move.to] = piece;
             (*this)[move.from] = BoardSquare::EMPTY;
 
             if (move.isCastling()) {
                 // Move rook
                 int r = move.from.row;
                 int fc = move.type == DetailedMove::MoveType::CASTLING_KINGSIDE ? 7 : 0;
-                this->squares[4][r] = this->squares[fc][r];
+                this->squares[(move.from.column + move.to.column)/2][r] = this->squares[fc][r];
                 this->squares[fc][r] = BoardSquare::EMPTY;
             }
     }
+
+    if (piece == BoardSquare::Type::KING) {
+        this->allowCastlingKingside = false;
+        this->allowCastlingQueenside = false;
+    } else if (piece == BoardSquare::Type::ROOK) {
+        int r = this->curColor == BoardSquare::Color::WHITE ? 0 : 7;
+        if (move.from.row == r) {
+            if (move.from.column == 0) this->allowCastlingQueenside = false;
+            if (move.from.column == 7) this->allowCastlingKingside = false;
+        }
+    }
+
     this->curColor = !this->curColor;
 }
 void ChessBoard::revert() {
@@ -92,9 +114,14 @@ void ChessBoard::revert() {
     this->moves.pop_back();
 
     this->curColor = !this->curColor;
+
+    this->allowCastlingKingside = move.prevFlags & 1;
+    this->allowCastlingQueenside = move.prevFlags & 2;
+
     switch (move.type) {
         case DetailedMove::MoveType::PROMOTION:
-            // TODO Promotion
+            (*this)[move.from] = BoardSquare(this->curColor, BoardSquare::Type::PAWN);
+            (*this)[move.to] = move.captured;
             break;
 
         case DetailedMove::MoveType::ENPASSANT:
@@ -108,8 +135,9 @@ void ChessBoard::revert() {
             // Move rook back
             int r = move.from.row;
             int fc = move.type == DetailedMove::MoveType::CASTLING_KINGSIDE ? 7 : 0;
-            this->squares[fc][r] = this->squares[4][r];
-            this->squares[4][r] = BoardSquare::EMPTY;
+            int f = (move.from.column + move.to.column)/2;
+            this->squares[fc][r] = this->squares[f][r];
+            this->squares[f][r] = BoardSquare::EMPTY;
         }
 
         default:
@@ -130,8 +158,8 @@ bool ChessBoard::isCheck(BoardSquare::Color color) {
     // Find king position
     BoardSquare kingSquare(color, BoardSquare::Type::KING);
     BoardPosition king(0, 0);
-    for (; king.column < 8; king.column++) {
-        for (; king.row < 8; king.row++) {
+    for (king.column = 0; king.column < 8; king.column++) {
+        for (king.row = 0; king.row < 8; king.row++) {
             if ((*this)[king] == kingSquare) {
                 return this->isSquareAttacked(color, king);
             }
@@ -201,8 +229,27 @@ bool ChessBoard::isLegal(BoardMove bmove) {
     // That piece can't move like that
     switch (move.type) {
         case DetailedMove::MoveType::CASTLING_KINGSIDE:
+            if (!this->allowCastlingKingside) return false;
+            if (!this->isLineEmpty(move.from, BoardPosition(7, move.from.row))) return false;
+            for (BoardPosition pos = move.from; pos.column <= 7; pos.column++) {
+                if (this->isSquareAttacked(this->curColor, pos)) return false;
+            }
+            goto castling;
         case DetailedMove::MoveType::CASTLING_QUEENSIDE:
-            // TODO Castling
+            if (!this->allowCastlingQueenside) return false;
+            if (!this->isLineEmpty(move.from, BoardPosition(0, move.from.row))) return false;
+            for (BoardPosition pos = move.from; pos.column >= 0; pos.column--) {
+                if (this->isSquareAttacked(this->curColor, pos)) return false;
+            }
+            goto castling;
+        
+        castling: {
+            int r = this->curColor == BoardSquare::Color::WHITE ? 0 : 7;
+            if (move.from.row != r) return false;
+            if (move.to.row != r) return false;
+            break;
+        }
+            
 
         case DetailedMove::MoveType::ENPASSANT: {
             DetailedMove lastMove = this->moves.back();
@@ -218,6 +265,16 @@ bool ChessBoard::isLegal(BoardMove bmove) {
     // Filter out cases with another piece in the way
     if (fromSq.type() != BoardSquare::Type::KNIGHT) {
         if (!isLineEmpty(move.from, move.to)) return false;
+    }
+
+    // Can only promote to certain pieces
+    if (move.type == DetailedMove::MoveType::PROMOTION) {
+        if (move.promoteTo == BoardSquare::Type::PAWN ||
+            move.promoteTo == BoardSquare::Type::KING ||
+            move.promoteTo == BoardSquare::Type::EMPTY) {
+             return false;
+         }
+
     }
 
     // Can't move into check

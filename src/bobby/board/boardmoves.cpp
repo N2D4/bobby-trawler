@@ -1,10 +1,11 @@
 #include "boardmoves.h"
 
-BoardMove::BoardMove(BoardPosition from, BoardPosition to) : from(from), to(to) { }
+BoardMove::BoardMove(BoardPosition from, BoardPosition to, BoardSquare::Type promoteTo) : from(from), to(to), promoteTo(promoteTo) { }
+BoardMove::BoardMove(BoardPosition from, BoardPosition to) : BoardMove(from, to, BoardSquare::Type::QUEEN) { }
 
 
 bool BoardMove::operator==(const BoardMove& w) {
-    return this->from == w.from && this->to == w.to;
+    return this->from == w.from && this->to == w.to && this->promoteTo == w.promoteTo;
 }
 bool BoardMove::operator!=(const BoardMove& w) {
     return !(*this == w);
@@ -45,9 +46,21 @@ bool BoardMove::isPossibleFor(BoardSquare square, bool isCapture) {
 
 
 
+static BoardSquare::Type bmstrtotype(std::string str) {
+    if (str.size() >= 5) {
+        std::cout << str[4] << std::endl;
+        switch (str[4]) {
+            case 'Q': return BoardSquare::Type::QUEEN;
+            case 'R': return BoardSquare::Type::ROOK;
+            case 'B': return BoardSquare::Type::BISHOP;
+            case 'N': return BoardSquare::Type::KNIGHT;
+        }
+    }
+    return BoardSquare::Type::QUEEN;
+}
 
 // Casting from/to std::string
-BoardMove::BoardMove(const std::string& str) : from(str.substr(0, 2)), to(str.substr(2, 2)) { }
+BoardMove::BoardMove(const std::string& str) : BoardMove(str.substr(0, 2), str.substr(2, 2), bmstrtotype(str)) { }
 BoardMove& BoardMove::operator= (const std::string& str) { return *this = BoardMove(str); }
 BoardMove::operator std::string() {
     return std::string(this->from) + std::string(this->to);
@@ -61,7 +74,7 @@ BoardMove& BoardMove::operator= (const char* str) { return *this = std::string(s
 
 
 
-DetailedMove::DetailedMove(BoardPosition from, BoardPosition to, BoardSquare captured, MoveType type) : BoardMove(from, to), captured(captured), type(type) { }
+DetailedMove::DetailedMove(BoardPosition from, BoardPosition to, BoardSquare::Type promoteTo, BoardSquare captured, MoveType type, int prevFlags) : BoardMove(from, to, promoteTo), captured(captured), type(type), prevFlags(prevFlags) { }
 
 bool DetailedMove::isPossibleFor(BoardSquare square) {
     return BoardMove::isPossibleFor(square, this->captured != BoardSquare::EMPTY);
