@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <stdlib.h>
+#include <random>
 #include "board/chessboard.h"
 
 /**
