@@ -23,8 +23,7 @@ struct DetailedMove;
  */
 class ChessBoard {
     private:
-        bool allowCastlingKingside, allowCastlingQueenside;
-        bool isCheck(BoardSquare::Color color);
+        float materialScore;
         bool isLineEmpty(BoardPosition pos1, BoardPosition pos2);
 
 
@@ -32,6 +31,8 @@ class ChessBoard {
         BoardSquare squares[8][8];
         BoardSquare::Color curColor;
         std::vector<DetailedMove> moves;
+        BoardSquare::Color::Container<bool> allowCastlingKingside, allowCastlingQueenside;
+        BoardSquare::Color::Container<BoardPosition> kingPos;
 
         ChessBoard();
         BoardSquare& operator[](BoardPosition position);
@@ -43,8 +44,12 @@ class ChessBoard {
         void revert();
 
         bool isCheck();
+        bool isCheck(BoardSquare::Color color);
         bool isSquareAttacked(BoardSquare::Color color, BoardPosition position);
         bool isLegal(BoardMove move);
+
+        float getMaterialScore();
+        float getMaterialScore(BoardSquare::Color color);
 
         std::string toHumanReadable(bool ansi=false);
 };

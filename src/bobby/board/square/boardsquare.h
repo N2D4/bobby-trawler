@@ -29,6 +29,17 @@ struct BoardSquare : IntStruct {
                 Color(int data);
 
             public:
+                template<class T>
+                struct Container {
+                    public:
+                        Container<T>(T white, T black) : white(white), black(black) {}
+                        T white;
+                        T black;
+                        T& operator[](BoardSquare::Color color) {
+                            return color == BoardSquare::Color::BLACK ? this->black : this->white;
+                        }
+                };
+
                 static const Color WHITE, BLACK, EMPTY;
                 Color operator!();
         };
@@ -41,6 +52,7 @@ struct BoardSquare : IntStruct {
 
             public:
                 static const Type PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, EMPTY;
+                float getScore() const;
         };
 
         static const BoardSquare EMPTY;

@@ -5,6 +5,7 @@
 #include <vector>
 #include <chrono>
 #include <thread>
+#include <iomanip>
 #include "engine.h"
 #include "board/boardmoves.h"
 
