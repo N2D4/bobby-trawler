@@ -44,11 +44,6 @@ bool BoardMove::isPossibleFor(BoardSquare square, bool isCapture) {
 }
 
 
-DetailedMove BoardMove::detailed(ChessBoard& board) {
-    return DetailedMove(this->from, this->to, board[this->to]);
-}
-
-
 
 
 // Casting from/to std::string
@@ -66,8 +61,12 @@ BoardMove& BoardMove::operator= (const char* str) { return *this = std::string(s
 
 
 
-DetailedMove::DetailedMove(BoardPosition from, BoardPosition to, BoardSquare captured) : BoardMove(from, to), captured(captured) { }
+DetailedMove::DetailedMove(BoardPosition from, BoardPosition to, BoardSquare captured, MoveType type) : BoardMove(from, to), captured(captured), type(type) { }
 
 bool DetailedMove::isPossibleFor(BoardSquare square) {
     return BoardMove::isPossibleFor(square, this->captured != BoardSquare::EMPTY);
+}
+
+bool DetailedMove::isCastling() {
+    return this->type >= DetailedMove::MoveType::CASTLING_KINGSIDE;
 }

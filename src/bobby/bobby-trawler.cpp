@@ -16,7 +16,7 @@ int main() {
     waitforcmd("isready");
     std::cout << "readyok" << std::endl;
 
-    std::cout << "Alright! Now enter a 4-character move, eg. 'e2e4', or 'go' to ask the engine" << std::endl;
+    std::cout << "Alright! Now enter a 4-character move, eg. 'e2e4', 'back' to take a move back, or 'go' to ask the engine" << std::endl;
 
 
 
@@ -38,23 +38,25 @@ int main() {
             if (movestr == "go4evah") goForever = true;
         }
 
-
-        BoardMove move = "a1a1";
-        if (goForever || movestr == "go") {                         // If either the AI is playing automatically or the
-            std::cout << "As a perfect AI, I choose... ";           // user entered 'go', ask the AI for the move
-            move = ChessEngine(board).findBestMove();
-            std::this_thread::sleep_for(std::chrono::milliseconds(750));
-            std::cout << std::string(move) << "!" << std::endl;
-        } else {                                                    // else, convert the string the user entered into a
-            move = movestr;                                         // move
-        }
-
-        // Get DetailedMove object; see board/boardmoves.h for explanation
-        DetailedMove detailed = move.detailed(board);
-        if (board.isLegal(detailed)) {
-            board.move(detailed);
+        if (movestr == "back") {
+            board.revert();
         } else {
-            std::cout << "Move not legal!" << std::endl;
+            BoardMove move = "a1a1";
+            if (goForever || movestr == "go") {                         // If either the AI is playing automatically or the
+                std::cout << "As a perfect AI, I choose... ";           // user entered 'go', ask the AI for the move
+                move = ChessEngine(board).findBestMove();
+                std::this_thread::sleep_for(std::chrono::milliseconds(750));
+                std::cout << std::string(move) << "!" << std::endl;
+            } else {                                                    // else, convert the string the user entered into a
+                move = movestr;                                         // move
+            }
+
+            // Get DetailedMove object; see board/boardmoves.h for explanation
+            if (board.isLegal(move)) {
+                board.move(move);
+            } else {
+                std::cout << "Move not legal!" << std::endl;
+            }
         }
 
     }

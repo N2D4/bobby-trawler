@@ -4,10 +4,12 @@
 #include <iostream>
 #include <vector>
 #include <stdexcept>
+#include "square/boardsquare.h"
 #include "boardposition.h"
 #include "chessboard.h"
 
 struct DetailedMove;
+struct BoardSquare;
 class ChessBoard;
 
 /**
@@ -15,9 +17,6 @@ class ChessBoard;
  * 
  * This simple move does not store any information about the move itself or the board state before or after the move;
  * it is simply a struct that could represent user input. It is not connected to any board or game state in any way.
- * 
- * In order to use a BoardMove object to a chess board, it must be converted to a DetailedMove object using the
- * detailed(...) method.
  */
 struct BoardMove {
     BoardPosition from;
@@ -35,8 +34,6 @@ struct BoardMove {
      */
     bool isPossibleFor(BoardSquare square, bool isCapture);
 
-    DetailedMove detailed(ChessBoard& board);
-    
 
     // Implicit casting from/to C++ strings
     BoardMove(const std::string& str);
@@ -53,21 +50,29 @@ struct BoardMove {
  * A fairly complex struct representing a chess move from some position from to a position to, with some additional
  * information related to the board state required to revert the board state back, such as the piece captured.
  * 
- * This structure can only be created by calling the .detailed(...) method of BoardMove. If used on any board other than
- * the board used to create this DetailedMove (or the board's state has changed), behaviour is undefined.
+ * It is mostly used inside ChessBoard.
  */
 struct DetailedMove : BoardMove {
-    friend BoardMove;
+    friend ChessBoard;
+
+    public:
+        enum MoveType : unsigned char {
+            NORMAL = 0, PAWN_DOUBLE = 1, ENPASSANT = 2, PROMOTION = 3, CASTLING_KINGSIDE = 4, CASTLING_QUEENSIDE = 5,
+        };
 
     private:
-        DetailedMove(BoardPosition from, BoardPosition to, BoardSquare captured);
+        DetailedMove(BoardPosition from, BoardPosition to, BoardSquare captured, MoveType type);
+
     
     public:
         BoardSquare captured;
+        MoveType type;
+
         /**
          * see BoardMove::isPossibleFor(BoardSquare, bool)
          */
         bool isPossibleFor(BoardSquare square);
+        bool isCastling();
 };
 
 #endif  // BOBBY_TRAWLER_BOBBY_BOARDMOVES_H_

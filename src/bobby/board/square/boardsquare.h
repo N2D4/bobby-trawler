@@ -4,6 +4,8 @@
 #include <iostream>
 #include "various/intstruct.h"
 
+
+
 /**
  * A structure representing either a single piece, or an empty square.
  * 
