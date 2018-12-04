@@ -49,6 +49,10 @@ int main() {
         } else if (movestr == "undo") {
             board.revert();
             std::cout << "Reverted a move" << std::endl;
+        } else if (movestr == "check") {
+            std::cout << "King positions: " << std::string(board.kingPos.white) << " " << std::string(board.kingPos.black) << std::endl;
+            std::cout << "isCheck(white): " << board.isCheck(BoardSquare::Color::WHITE) << std::endl;
+            std::cout << "isCheck(black): " << board.isCheck(BoardSquare::Color::BLACK) << std::endl;
         } else {
             BoardMove move = "a1a1";
             if (goForever || movestr == "go") {                                         // If the AI should play...
@@ -56,7 +60,8 @@ int main() {
                 std::pair<float, BoardMove> res = ChessEngine(board).findBestMove(4);   // ...ask the AI for the move
                 move = res.second;
                 std::cout << std::string(move) << "!" << std::endl;
-                std::cout << "Score: " << (res.first * (board.curColor == BoardSquare::Color::WHITE ? 1 : -1)) << std::endl;
+                float score = res.first * (board.curColor == BoardSquare::Color::WHITE ? 1 : -1);
+                std::cout << "Score: " << std::fixed << std::setprecision(3) << score << std::endl;
             } else {                                                                    // else, convert the string the
                 move = movestr;                                                         // user entered into a move
             }

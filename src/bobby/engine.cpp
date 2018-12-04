@@ -33,19 +33,7 @@ std::pair<float, BoardMove> ChessEngine::findBestMove(int depth) {
                         if (depth > 1) {            // recurse deeper
                             curScore = - this->findBestMove(depth - 1).first;
                         } else {                    // base case
-                            for (int m = 0; m < 8; m++) {
-                                for (int n = 0; n < 8; n++) {
-                                    BoardSquare sq = this->board.squares[m][n];
-                                    int score = sq.type() == BoardSquare::Type::PAWN ? 1
-                                              : sq.type() == BoardSquare::Type::KNIGHT ? 3
-                                              : sq.type() == BoardSquare::Type::BISHOP ? 3
-                                              : sq.type() == BoardSquare::Type::ROOK ? 5
-                                              : sq.type() == BoardSquare::Type::QUEEN ? 9
-                                              : 0;
-                                    if (sq.color() == this->board.curColor) score *= -1;
-                                    curScore += score;
-                                }
-                            }
+                            curScore = this->board.getMaterialScore(!this->board.curColor);
 
                             // Add some randomness so our computer isn't 100% deterministic
                             curScore += random(rng);
@@ -64,7 +52,7 @@ std::pair<float, BoardMove> ChessEngine::findBestMove(int depth) {
     }
 
     if (std::isnan(bestScore)) {       // no legal moves
-        bestScore = this->board.isCheck() ? -1000 : 0;
+        bestScore = this->board.isCheck() ? -1000 + random(rng) : 0;
     }
 
     return std::pair<float, BoardMove>(bestScore, bestMove);

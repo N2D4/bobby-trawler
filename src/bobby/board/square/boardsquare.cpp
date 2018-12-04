@@ -70,3 +70,20 @@ std::string BoardSquare::asUnicode() {
 BoardSquare::Color BoardSquare::Color::operator!() {
     return BoardSquare::Color(this->data ^ BoardSquare::COLOR_MASK);
 }
+
+
+float BoardSquare::Type::getScore() const {
+    switch (this->data) {
+        case 0b100000:          // Pawn
+            return 1;
+        case 0b010000:          // Knight
+        case 0b001000:          // Bishop
+            return 3;
+        case 0b000100:          // Rook
+            return 5;
+        case 0b000010:          // Queen
+            return 9;
+        default:
+            return 0;
+    }
+}
