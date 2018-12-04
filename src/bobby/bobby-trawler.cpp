@@ -51,13 +51,14 @@ int main() {
             std::cout << "Reverted a move" << std::endl;
         } else {
             BoardMove move = "a1a1";
-            if (goForever || movestr == "go") {                         // If either the AI is playing automatically or the
-                std::cout << "As a perfect AI, I choose... ";           // user entered 'go', ask the AI for the move
-                move = ChessEngine(board).findBestMove();
-                std::this_thread::sleep_for(std::chrono::milliseconds(750));
+            if (goForever || movestr == "go") {                                         // If the AI should play...
+                std::cout << "As a perfect AI, I choose... " << std::flush;
+                std::pair<float, BoardMove> res = ChessEngine(board).findBestMove(4);   // ...ask the AI for the move
+                move = res.second;
                 std::cout << std::string(move) << "!" << std::endl;
-            } else {                                                    // else, convert the string the user entered into a
-                move = movestr;                                         // move
+                std::cout << "Score: " << (res.first * (board.curColor == BoardSquare::Color::WHITE ? 1 : -1)) << std::endl;
+            } else {                                                                    // else, convert the string the
+                move = movestr;                                                         // user entered into a move
             }
 
             // Get DetailedMove object; see board/boardmoves.h for explanation

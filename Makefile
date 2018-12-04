@@ -1,5 +1,5 @@
 CPPC = g++
-CPPFLAGS = -I src/bobby -std=c++11
+CPPFLAGS = -I src/bobby -std=c++11 -O3
 
 SRC_DIR := src
 OBJ_DIR := out/obj
@@ -15,3 +15,7 @@ out/BobbyTrawler: $(OBJ_FILES)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(H_FILES)
 	@mkdir -p $(@D)
 	$(CPPC) -c -o $@ $< $(CPPFLAGS)
+
+.PHONY: clean
+clean:
+	rm -rf out
