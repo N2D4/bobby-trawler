@@ -13,7 +13,7 @@ std::pair<float, BoardMove> ChessEngine::findBestMove(int depth) {
     static std::normal_distribution<float> random(0.0, 0.0002);
 
     // Find the best of all 64*64 theoretical moves
-    float bestScore = -1000;
+    float bestScore = NAN;
     BoardMove bestMove = "e2e4";
 
     // Our move is from position (i, j) to (k, l)
@@ -54,7 +54,7 @@ std::pair<float, BoardMove> ChessEngine::findBestMove(int depth) {
                     this->board.revert();
 
                     // Is this the new top score? If so, save the move
-                    if (curScore > bestScore) {
+                    if (std::isnan(bestScore) || curScore > bestScore) {
                         bestScore = curScore;
                         bestMove = move;
                     }
@@ -62,5 +62,10 @@ std::pair<float, BoardMove> ChessEngine::findBestMove(int depth) {
             }
         }
     }
+
+    if (std::isnan(bestScore)) {       // no legal moves
+        bestScore = this->board.isCheck() ? -1000 : 0;
+    }
+
     return std::pair<float, BoardMove>(bestScore, bestMove);
 }
