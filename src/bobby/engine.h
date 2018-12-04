@@ -15,7 +15,7 @@ class ChessEngine {
     public:
         ChessEngine(ChessBoard& board);
 
-        DetailedMove findBestMove();
+        BoardMove findBestMove();
 };
 
 #endif  // BOBBY_TRAWLER_BOBBY_ENGINE_H_
