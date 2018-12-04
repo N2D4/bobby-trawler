@@ -17,6 +17,7 @@ class ChessEngine {
         ChessEngine(ChessBoard& board);
 
         BoardMove findBestMove();
+        std::pair<float, BoardMove> findBestMove(int depth);
 };
 
 #endif  // BOBBY_TRAWLER_BOBBY_ENGINE_H_
