@@ -21,7 +21,9 @@ class ChessBoard;
 struct BoardMove {
     BoardPosition from;
     BoardPosition to;
+    BoardSquare::Type promoteTo;
 
+    BoardMove(BoardPosition from, BoardPosition to, BoardSquare::Type promoteTo);
     BoardMove(BoardPosition from, BoardPosition to);
 
     bool operator==(const BoardMove& w);
@@ -61,12 +63,13 @@ struct DetailedMove : BoardMove {
         };
 
     private:
-        DetailedMove(BoardPosition from, BoardPosition to, BoardSquare captured, MoveType type);
+        DetailedMove(BoardPosition from, BoardPosition to, BoardSquare::Type promoteTo, BoardSquare captured, MoveType type, int prevFlags);
 
     
     public:
         BoardSquare captured;
         MoveType type;
+        int prevFlags;
 
         /**
          * see BoardMove::isPossibleFor(BoardSquare, bool)

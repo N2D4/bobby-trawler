@@ -23,6 +23,7 @@ struct DetailedMove;
  */
 class ChessBoard {
     private:
+        bool allowCastlingKingside, allowCastlingQueenside;
         bool isCheck(BoardSquare::Color color);
         bool isLineEmpty(BoardPosition pos1, BoardPosition pos2);
 
