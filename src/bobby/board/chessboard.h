@@ -52,6 +52,7 @@ class ChessBoard {
         float getMaterialScore(BoardSquare::Color color);
 
         std::string toHumanReadable(bool ansi=false);
+        std::string getInfo(bool ansi=false);
 };
 
 #endif  // BOBBY_TRAWLER_BOBBY_CHESSBOARD_H_

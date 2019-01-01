@@ -53,6 +53,8 @@ int main() {
             std::cout << "King positions: " << std::string(board.kingPos.white) << " " << std::string(board.kingPos.black) << std::endl;
             std::cout << "isCheck(white): " << board.isCheck(BoardSquare::Color::WHITE) << std::endl;
             std::cout << "isCheck(black): " << board.isCheck(BoardSquare::Color::BLACK) << std::endl;
+        } else if (movestr == "info") {
+            std::cout << board.getInfo(true) << std::endl;
         } else {
             BoardMove move = "a1a1";
             if (goForever || movestr == "go") {                                         // If the AI should play...

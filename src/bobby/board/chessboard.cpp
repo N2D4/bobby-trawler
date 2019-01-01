@@ -240,7 +240,7 @@ bool ChessBoard::isLegal(BoardMove bmove) {
             if (!this->allowCastlingKingside[this->curColor]) return false;
             if (!this->isLineEmpty(move.from, BoardPosition(7, move.from.row))) return false;
             for (BoardPosition pos = move.from; pos.column <= 7; pos.column++) {
-                if (this->isSquareAttacked(this->curColor, pos)) return false;
+                if (this->isSquareAttacked(!this->curColor, pos)) return false;
             }
             goto castling;
             
@@ -248,7 +248,7 @@ bool ChessBoard::isLegal(BoardMove bmove) {
             if (!this->allowCastlingQueenside[this->curColor]) return false;
             if (!this->isLineEmpty(move.from, BoardPosition(0, move.from.row))) return false;
             for (BoardPosition pos = move.from; pos.column >= 0; pos.column--) {
-                if (this->isSquareAttacked(this->curColor, pos)) return false;
+                if (this->isSquareAttacked(!this->curColor, pos)) return false;
             }
             goto castling;
         
@@ -356,3 +356,21 @@ std::string ChessBoard::toHumanReadable(bool ansi) {
     }
     return result;
 }
+
+std::string ChessBoard::getInfo(bool ansi) {
+    std::string result;
+    result += "curColor: " + std::string(curColor == BoardSquare::Color::WHITE ? "White" : "Black") + "\n";
+    result += "allowCastlingKingside.white: " + std::string(allowCastlingKingside.white ? "true" : "false") + "\n";
+    result += "allowCastlingQueenside.white: " + std::string(allowCastlingQueenside.white ? "true" : "false") + "\n";
+    result += "allowCastlingKingside.black: " + std::string(allowCastlingKingside.black ? "true" : "false") + "\n";
+    result += "allowCastlingQueenside.black: " + std::string(allowCastlingQueenside.black ? "true" : "false") + "\n";
+    result += "kingPos.white: " + std::string(kingPos.white) + "\n";
+    result += "kingPos.black: " + std::string(kingPos.black) + "\n";
+    result += "moves:\n";
+    for (int i = 0; i < moves.size(); i++) {
+        result += "  " + std::string(moves[i]) + "\n";
+    }
+    result += toHumanReadable(ansi);
+    return result;
+}
+
