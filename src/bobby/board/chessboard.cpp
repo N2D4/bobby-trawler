@@ -417,6 +417,7 @@ std::string ChessBoard::toHumanReadable(bool ansi) {
             BoardPosition pos = BoardPosition(j, i);
             BoardSquare sq = (*this)[pos];
             if (ansi) {
+                result += "\033[38;5;0m";
                 if (lastm.from == pos || lastm.to == pos) {
                     result += (i + j) % 2 == 0 ? "\033[48;5;142m" : "\033[48;5;185m";
                 } else {
