@@ -59,7 +59,7 @@ int main() {
             std::cout << "isCheck(white): " << board.isCheck(BoardSquare::Color::WHITE) << std::endl;
             std::cout << "isCheck(black): " << board.isCheck(BoardSquare::Color::BLACK) << std::endl;
         } else if (movestr == "score") {
-            std::cout << "Score: " << board.getMaterialScore() << std::endl;
+            std::cout << "Material score: " << board.getMaterialScore() << std::endl;
         } else if (movestr == "info") {
             std::cout << board.getInfo(true) << std::endl;
         } else if (movestr == "cachesize") {
