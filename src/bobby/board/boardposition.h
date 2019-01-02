@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cmath>
 #include "square/boardsquare.h"
 
 /**
@@ -21,6 +22,7 @@ struct BoardPosition {
     bool operator!=(const BoardPosition& w);
 
     bool isValid();
+    float getPawnBonusScore(BoardSquare::Color color);
     
     // Implicit casting from/to C++ strings
     BoardPosition(const std::string& str);

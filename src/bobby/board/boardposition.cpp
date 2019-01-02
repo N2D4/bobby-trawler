@@ -12,6 +12,11 @@ bool BoardPosition::isValid() {
     return ((unsigned int) (this->column | this->row)) < 8;
 }
 
+float BoardPosition::getPawnBonusScore(BoardSquare::Color color) {
+    return std::pow(std::max(0.0, color == BoardSquare::Color::BLACK ? 3.0 - this->row : this->row - 4.0), 2) / 3;
+}
+
+
 
 bool BoardPosition::operator==(const BoardPosition& w) {
     return this->column == w.column && this->row == w.row;
