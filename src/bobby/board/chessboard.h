@@ -51,6 +51,15 @@ class ChessBoard {
         float getMaterialScore();
         float getMaterialScore(BoardSquare::Color color);
 
+        /**
+         * Returns a value unique to this board position. If it is 0, no unique value could've been created. Usually
+         * returns a non-zero value when there are only few pieces on the board. There are multiple reasons why it may
+         * fail to create a unique value; for example if there are many pieces on the board or one of the kings may
+         * still castle. As a rule of thumb, it succeeds to generate a unique value for most board positions with 7 or
+         * less pieces, but might still fail even in those situations.
+         */
+        unsigned long long getUniqueCacheName();
+
         std::string toHumanReadable(bool ansi=false);
         std::string getInfo(bool ansi=false);
 };

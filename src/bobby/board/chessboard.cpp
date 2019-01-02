@@ -73,6 +73,9 @@ void ChessBoard::move(BoardMove move) {
 void ChessBoard::move(DetailedMove move) {
     BoardSquare piece = (*this)[move.from];
     float materialScoreIncrease = move.captured.type().getScore();
+    if (move.captured.type() == BoardSquare::Type::PAWN) {
+        materialScoreIncrease += (move.type == DetailedMove::MoveType::ENPASSANT ? BoardPosition(move.to.column, move.from.row) : move.to).getPawnBonusScore(!this->curColor);
+    }
 
     this->moves.push_back(move);
 
@@ -99,16 +102,20 @@ void ChessBoard::move(DetailedMove move) {
             }
     }
 
+    // TODO Use switch instead
     if (piece.type() == BoardSquare::Type::KING) {
         this->allowCastlingKingside[this->curColor] = false;
         this->allowCastlingQueenside[this->curColor] = false;
         this->kingPos[this->curColor] = move.to;
-    } else if (piece == BoardSquare::Type::ROOK) {
+    } else if (piece.type() == BoardSquare::Type::ROOK) {
         int r = this->curColor == BoardSquare::Color::WHITE ? 0 : 7;
         if (move.from.row == r) {
             if (move.from.column == 0) this->allowCastlingQueenside[this->curColor] = false;
             if (move.from.column == 7) this->allowCastlingKingside[this->curColor] = false;
         }
+    } else if (piece.type() == BoardSquare::Type::PAWN) {
+        materialScoreIncrease -= move.from.getPawnBonusScore(this->curColor);
+        if (move.type != DetailedMove::MoveType::PROMOTION) materialScoreIncrease += move.to.getPawnBonusScore(this->curColor);
     }
 
     this->materialScore += this->curColor == BoardSquare::Color::WHITE ? materialScoreIncrease : -materialScoreIncrease;
@@ -122,6 +129,9 @@ void ChessBoard::revert() {
     this->curColor = !this->curColor;
 
     float materialScoreDecrease = move.captured.type().getScore();
+    if (move.captured.type() == BoardSquare::Type::PAWN) {
+        materialScoreDecrease += (move.type == DetailedMove::MoveType::ENPASSANT ? BoardPosition(move.to.column, move.from.row) : move.to).getPawnBonusScore(!this->curColor);
+    }
 
     this->allowCastlingKingside.white = move.prevFlags & 0x1;
     this->allowCastlingQueenside.white = move.prevFlags & 0x2;
@@ -131,6 +141,9 @@ void ChessBoard::revert() {
     BoardSquare piece = (*this)[move.to];
     if (piece.type() == BoardSquare::Type::KING) {
         this->kingPos[this->curColor] = move.from;
+    } else if (piece.type() == BoardSquare::Type::PAWN ||move.type == DetailedMove::MoveType::PROMOTION) {
+        materialScoreDecrease -= move.from.getPawnBonusScore(this->curColor);
+        if (move.type != DetailedMove::MoveType::PROMOTION) materialScoreDecrease += move.to.getPawnBonusScore(this->curColor);
     }
 
     switch (move.type) {
@@ -322,6 +335,73 @@ float ChessBoard::getMaterialScore(BoardSquare::Color color) {
 
 
 
+unsigned long long ChessBoard::getUniqueCacheName() {
+    if (allowCastlingKingside.white || allowCastlingKingside.black || allowCastlingQueenside.white || allowCastlingQueenside.black) {
+        return 0;
+    }
+
+    std::vector<unsigned long> ivec;
+    std::vector<unsigned long> lenvec;
+    #define writeToResult(I, LEN)  ivec.push_back(I); lenvec.push_back(LEN);
+
+    writeToResult(curColor == BoardSquare::Color::BLACK, 2);
+
+    bool hasFoundKing = false;
+    int sinceLastPiece = 0;
+    int maxSinceLastPiece = 10;
+    int maxEnPassants = 0;
+    int isEnPassant = 0;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            BoardSquare square = squares[i][j];
+            while (sinceLastPiece >= 23) {
+                writeToResult(maxSinceLastPiece + 1, maxSinceLastPiece + 2);
+                sinceLastPiece -= 23;
+            }
+            if (square.isEmpty()) {
+                sinceLastPiece += 1;
+                continue;
+            }
+            if (isEnPassant <= 0 && i == (curColor == BoardSquare::Color::WHITE ? 4 : 5)) {
+                if (square.type() == BoardSquare::Type::PAWN && square.color() == !curColor) {
+                    BoardSquare opawn = BoardSquare::Type::PAWN.ofColor(curColor);
+                    if ((j >= 1 && squares[i][j-1] == opawn) || (j <= 7 && squares[i][j+1] == opawn)) {
+                        maxEnPassants++;
+                        if (moves.back().to == BoardPosition(i, j)) isEnPassant = maxEnPassants;
+                    }
+                }
+            }
+            while (sinceLastPiece >= maxSinceLastPiece) {
+                writeToResult(maxSinceLastPiece, maxSinceLastPiece + 2);
+                sinceLastPiece -= maxSinceLastPiece;
+            }
+            writeToResult(sinceLastPiece, maxSinceLastPiece + 2);
+            writeToResult(square.typeId(), 6);
+            if (hasFoundKing || !(hasFoundKing = square.type() == BoardSquare::Type::KING)) {
+                writeToResult(square.colorId(), 2);
+            }
+            sinceLastPiece = 0;
+            maxSinceLastPiece = std::min(10, 64 - (8*i + j) - 1);
+        }
+    }
+    writeToResult(maxSinceLastPiece + 1, maxSinceLastPiece + 2);
+
+    if (maxEnPassants >= 1) {
+        writeToResult(isEnPassant, maxEnPassants + 1);
+    }
+
+    #undef writeToResult
+
+    unsigned long long result = 0;
+    for (int i = ivec.size() - 1; i >= 0; i--) {
+        if (__builtin_umulll_overflow(result, lenvec[i], &result)) return 0;
+        if (__builtin_uaddll_overflow(result, ivec[i], &result)) return 0;
+    }
+    return result;
+}
+
+
+
 
 
 
@@ -360,12 +440,15 @@ std::string ChessBoard::toHumanReadable(bool ansi) {
 std::string ChessBoard::getInfo(bool ansi) {
     std::string result;
     result += "curColor: " + std::string(curColor == BoardSquare::Color::WHITE ? "White" : "Black") + "\n";
+    result += "score (white): " + std::to_string(this->getMaterialScore()) + "\n";
     result += "allowCastlingKingside.white: " + std::string(allowCastlingKingside.white ? "true" : "false") + "\n";
     result += "allowCastlingQueenside.white: " + std::string(allowCastlingQueenside.white ? "true" : "false") + "\n";
     result += "allowCastlingKingside.black: " + std::string(allowCastlingKingside.black ? "true" : "false") + "\n";
     result += "allowCastlingQueenside.black: " + std::string(allowCastlingQueenside.black ? "true" : "false") + "\n";
     result += "kingPos.white: " + std::string(kingPos.white) + "\n";
     result += "kingPos.black: " + std::string(kingPos.black) + "\n";
+    long long posName = getUniqueCacheName();
+    result += "Unique position name: " + std::string(posName == 0 ? "None" : std::to_string(posName)) + "\n";
     result += "moves:\n";
     for (int i = 0; i < moves.size(); i++) {
         result += "  " + std::string(moves[i]) + "\n";

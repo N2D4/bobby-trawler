@@ -3,6 +3,6 @@ Just another chess computer. Heavy WIP
 
 
 
-C++11 (subject to change)
+C++11 (subject to change), to be compiled with GCC or Clang (MSVC probably won't work)
 
-Compile and run with: `make && ./out/BobbyTrawler`
+If Make is available, compile and run with: `make && ./out/BobbyTrawler`

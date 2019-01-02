@@ -87,3 +87,7 @@ float BoardSquare::Type::getScore() const {
             return 0;
     }
 }
+
+BoardSquare BoardSquare::Type::ofColor(BoardSquare::Color color) const {
+    return BoardSquare(color, *this);
+}

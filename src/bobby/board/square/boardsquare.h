@@ -53,6 +53,7 @@ struct BoardSquare : IntStruct {
             public:
                 static const Type PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, EMPTY;
                 float getScore() const;
+                BoardSquare ofColor(BoardSquare::Color color) const;
         };
 
         static const BoardSquare EMPTY;
