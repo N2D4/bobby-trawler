@@ -6,6 +6,7 @@
 #include <chrono>
 #include <thread>
 #include <iomanip>
+#include <algorithm>
 #include "engine.h"
 #include "board/boardmoves.h"
 
