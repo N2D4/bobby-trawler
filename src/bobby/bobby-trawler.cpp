@@ -16,7 +16,7 @@ int main() {
     waitforcmd("isready");
     std::cout << "readyok" << std::endl;
 
-    std::cout << "Alright! Now enter a 4-character move, eg. 'e2e4', 'back' to take a move back, or 'go' to ask the engine" << std::endl;
+    std::cout << "Alright! Now enter a 4-character move, eg. 'e2e4', 'back' to take a move back, or 'go' to ask the engine. Type help for more" << std::endl;
 
 
 
@@ -37,18 +37,36 @@ int main() {
             std::cin >> movestr;
             // If the user enters 'go4evah', make the AI start playing automatically
             if (movestr == "go4evah") goRemaining = 10000;
-            if (movestr.rfind("go4_", 0) == 0) goRemaining = std::stoi(movestr.substr(4));
+            if (movestr == "go4") {
+                std::cout << "Number of moves: " << std::endl;
+                std::cin >> goRemaining;
+            }
         }
 
-        if (movestr == "back") {
-            board.revert();
-        } else if (movestr == "rem") {
+        if (movestr == "help" || movestr == "h") {
+            std::cout << "==== AVAILABLE COMMANDS ====" << std::endl;
+            std::cout << "  A#A#P: 4 character move, whereas A is a character from a-h and # a number from 1-8 and P is optionally a promoted piece (Q/R/B/N, default Q)" << std::endl;
+            std::cout << "  back: Take back the most recent move" << std::endl;
+            std::cout << "  cachesize: Display cache size info" << std::endl;
+            std::cout << "  check: Display check status" << std::endl;
+            std::cout << "  go: Make engine play a single move" << std::endl;
+            std::cout << "  go4: Make engine play a custom number of moves" << std::endl;
+            std::cout << "  go4evah: Make engine play forever (actually, 10000 moves)" << std::endl;
+            std::cout << "  help: Show this help page" << std::endl;
+            std::cout << "  info: Display board position info" << std::endl;
+            std::cout << "  rem: Remove a piece" << std::endl;
+            std::cout << "  resetcache: Empty the cache" << std::endl;
+            std::cout << "  score: Display raw material score" << std::endl;
+            std::cout << "  swcol: Switch current color" << std::endl;
+            std::cout << "  undo: Alias for back" << std::endl;
+            std::cout << "Available aliases are b(ack), g(o), h(elp), i(nfo), r(em), sc(ore)" << std::endl;
+        } else if (movestr == "rem" || movestr == "r") {
             std::cout << "Removing a piece. Position: ";
             std::string remstr;
             std::cin >> remstr;
             board[remstr] = BoardSquare::EMPTY;
             std::cout << "Removed piece. Note that this might cause glitches, eg. w/ castling if you remove a rook" << std::endl;
-        } else if (movestr == "undo") {
+        } else if (movestr == "undo" || movestr == "back" || movestr == "b") {
             board.revert();
             std::cout << "Reverted a move" << std::endl;
         } else if (movestr == "swcol") {
@@ -58,9 +76,9 @@ int main() {
             std::cout << "King positions: " << std::string(board.kingPos.white) << " " << std::string(board.kingPos.black) << std::endl;
             std::cout << "isCheck(white): " << board.isCheck(BoardSquare::Color::WHITE) << std::endl;
             std::cout << "isCheck(black): " << board.isCheck(BoardSquare::Color::BLACK) << std::endl;
-        } else if (movestr == "score") {
+        } else if (movestr == "score" || movestr == "sc") {
             std::cout << "Material score: " << board.getMaterialScore() << std::endl;
-        } else if (movestr == "info") {
+        } else if (movestr == "info" || movestr == "i") {
             std::cout << board.getInfo(true) << std::endl;
         } else if (movestr == "cachesize") {
             std::cout << "Cache size: " << engine.getMemoizationCount() << " entries" << std::endl;
@@ -69,7 +87,7 @@ int main() {
             std::cout << "Removed all cache entries" << std::endl;
         } else {
             BoardMove move = "a1a1";
-            if (--goRemaining >= 0 || movestr == "go") {                                         // If the AI should play...
+            if (--goRemaining >= 0 || movestr == "go" || movestr == "g") {                                         // If the AI should play...
                 std::cout << "As a perfect AI, I choose... " << std::flush;
                 std::tuple<float, int, BoardMove> res = engine.findBestMove();   // ...ask the AI for the move
                 move = std::get<2>(res);

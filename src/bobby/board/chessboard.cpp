@@ -450,7 +450,7 @@ std::string ChessBoard::getInfo(bool ansi) {
     result += "kingPos.black: " + std::string(kingPos.black) + "\n";
     long long posName = getUniqueCacheName();
     result += "Unique position name: " + std::string(posName == 0 ? "None" : std::to_string(posName)) + "\n";
-    result += "moves:\n";
+    result += "moves: (length " + std::to_string(moves.size()) + ")\n";
     for (int i = 0; i < moves.size(); i++) {
         result += "  " + std::string(moves[i]) + "\n";
     }
