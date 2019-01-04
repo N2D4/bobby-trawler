@@ -22,7 +22,7 @@ class ChessEngine {
         std::tuple<float, int, BoardMove> findBestMove();
         std::tuple<float, int, BoardMove> findBestMove(int depth);
 
-        int getMemoizationCount();
+        int getMemoizationCount() const;
         void resetMemoizations();
 };
 

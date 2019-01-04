@@ -9,13 +9,13 @@ std::tuple<float, int, BoardMove> ChessEngine::findBestMove() {
         std::tuple<float, int, BoardMove> tup = this->findBestMove(depth);
         float score = std::get<0>(tup);
         int bottomLayerMoves = std::get<1>(tup);
-        if (score > 1000 || depth >= 30 || bottomLayerMoves >= 100000) return tup;
+        if (score > 1000 || depth >= 30 || bottomLayerMoves >= 400000) return tup;
         depth += 1;
     }
 }
 
 std::tuple<float, int, BoardMove> ChessEngine::findBestMove(int depth) {
-    static std::default_random_engine rng(1337);
+    static std::default_random_engine rng(42);
     static std::normal_distribution<float> random(0.0, 0.00002);
 
     // Find the best of all 64*64 theoretical moves
@@ -39,12 +39,17 @@ std::tuple<float, int, BoardMove> ChessEngine::findBestMove(int depth) {
                     totalBottomLayerMoves += 1;
                     this->board.move(move);
                     {
+                        bool nd = true;
                         long long cacheName = board.getUniqueCacheName();
-                        std::unordered_map<long long, std::pair<float, int>>::iterator cacheEntry = memoizedPositions.find(cacheName);
-                        if (cacheName != 0 && cacheEntry != memoizedPositions.end() && cacheEntry->second.second >= depth) {
-                            curScore = cacheEntry->second.first;
-                            curScore *= std::pow(0.999, depth - cacheEntry->second.second);
-                        } else {
+                        if (cacheName != 0) {
+                            std::unordered_map<long long, std::pair<float, int>>::iterator cacheEntry = memoizedPositions.find(cacheName);
+                            if (cacheEntry != memoizedPositions.end() && cacheEntry->second.second >= depth) {
+                                curScore = cacheEntry->second.first;
+                                curScore *= std::pow(0.999, depth - cacheEntry->second.second);
+                                nd = false;
+                            }
+                        }
+                        if (nd) {
                             // Calculate board score
                             if (depth > 1) {            // recurse deeper
                                 int n;
@@ -87,7 +92,7 @@ std::tuple<float, int, BoardMove> ChessEngine::findBestMove(int depth) {
 
 
 
-int ChessEngine::getMemoizationCount() {
+int ChessEngine::getMemoizationCount() const {
     return memoizedPositions.size();
 }
 

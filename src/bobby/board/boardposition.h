@@ -16,22 +16,22 @@ struct BoardPosition {
     int column;
     int row;
 
-    BoardPosition(int column, int row);
+    constexpr BoardPosition(int column, int row) : column(column), row(row) { }
 
-    bool operator==(const BoardPosition& w);
-    bool operator!=(const BoardPosition& w);
+    constexpr bool operator==(const BoardPosition& w) const { return this->column == w.column && this->row == w.row; }
+    constexpr bool operator!=(const BoardPosition& w) const { return !(*this == w); }
 
-    bool isValid();
-    float getPawnBonusScore(BoardSquare::Color color);
+    constexpr bool isValid() const { return ((unsigned int) (this->column | this->row)) < 8; }
+    inline float getPawnBonusScore(BoardSquare::Color color) const { return std::pow(std::max(0.0, color == BoardSquares::Colors::BLACK ? 3.0 - this->row : this->row - 4.0), 2) / 3; }
     
     // Implicit casting from/to C++ strings
-    BoardPosition(const std::string& str);
-    BoardPosition& operator= (const std::string& str);
-    operator std::string();
+    inline BoardPosition(const std::string& str) : BoardPosition(str[0] - 'a', str[1] - '1') { }
+    inline BoardPosition& operator=(const std::string& str) const { return *this = BoardPosition(str); }
+    inline operator std::string() const { return std::string({(char) ('a' + column),(char) ('1' + row), '\0'}); }
 
     // Implicit casting from C strings (for literals)
-    BoardPosition(const char* str);
-    BoardPosition& operator= (const char* str);
+    constexpr BoardPosition(const char* str) : BoardPosition(str[0] - 'a', str[1] - '1') { }
+    inline BoardPosition& operator=(const char* str) const { return *this = BoardPosition(str); }
 };
 
 #endif  // BOBBY_TRAWLER_BOBBY_BOARDPOSITION_H_

@@ -1,5 +1,5 @@
 CPPC = g++
-CPPFLAGS = -I src/bobby -std=c++11 -O3
+CPPFLAGS = -I src/bobby -std=c++14 -O3
 
 SRC_DIR := src
 OBJ_DIR := out/obj
