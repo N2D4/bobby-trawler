@@ -24,8 +24,11 @@ struct DetailedMove;
 class ChessBoard {
     private:
         float materialScore;
+        int pieceCount;
         bool isLineEmpty(BoardPosition pos1, BoardPosition pos2);
-
+        static int cacheNameHits[33];
+        static int cacheNameCalls[33];
+        unsigned long long _priv_getUniqueCacheName() const;
 
     public:
         BoardSquare squares[8][8];
@@ -35,9 +38,10 @@ class ChessBoard {
         BoardSquare::Color::Container<BoardPosition> kingPos;
 
         ChessBoard();
-        BoardSquare& operator[](BoardPosition position);
+        constexpr BoardSquare operator[](BoardPosition position) const { return this->squares[position.column][position.row]; }
+        inline BoardSquare& operator[](BoardPosition position) { return this->squares[position.column][position.row]; }
 
-        DetailedMove createDetailedMove(BoardMove move);
+        DetailedMove createDetailedMove(BoardMove move) const;
 
         void move(BoardMove move);
         void move(DetailedMove move);
@@ -45,11 +49,12 @@ class ChessBoard {
 
         bool isCheck();
         bool isCheck(BoardSquare::Color color);
-        bool isSquareAttacked(BoardSquare::Color color, BoardPosition position);
+        bool isSquareAttacked(BoardSquare::Color color, BoardPosition position) const;
         bool isLegal(BoardMove move);
 
-        float getMaterialScore();
-        float getMaterialScore(BoardSquare::Color color);
+        constexpr float getMaterialScore() const { return this->materialScore; }
+        constexpr float getMaterialScore(BoardSquare::Color color) const { return color == BoardSquares::Colors::WHITE ? getMaterialScore() : -getMaterialScore(); }
+        constexpr int getPieceCount() const { return this->pieceCount; }
 
         /**
          * Returns a value unique to this board position. If it is 0, no unique value could've been created. Usually
@@ -58,10 +63,10 @@ class ChessBoard {
          * still castle. As a rule of thumb, it succeeds to generate a unique value for most board positions with 7 or
          * less pieces, but might still fail even in those situations.
          */
-        unsigned long long getUniqueCacheName();
+        unsigned long long getUniqueCacheName() const;
 
-        std::string toHumanReadable(bool ansi=false);
-        std::string getInfo(bool ansi=false);
+        std::string toHumanReadable(bool ansi=false) const;
+        std::string getInfo(bool ansi=false) const;
 };
 
 #endif  // BOBBY_TRAWLER_BOBBY_CHESSBOARD_H_

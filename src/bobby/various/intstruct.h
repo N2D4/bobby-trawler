@@ -7,11 +7,11 @@
 struct IntStruct {
     protected:
         int data;
-        IntStruct(const int data);
+        constexpr IntStruct(const int data) : data(data) { }
     
     public:
-        bool operator==(const IntStruct& w);
-        bool operator!=(const IntStruct& w);
+        constexpr bool operator==(const IntStruct& w) const { return this->data == w.data; }
+        constexpr bool operator!=(const IntStruct& w) const { return this->data != w.data; }
 };
 
 #endif  // BOBBY_TRAWLER_VARIOUS_INTSTRUCT_H_

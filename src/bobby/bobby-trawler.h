@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <algorithm>
 #include "engine.h"
+#include "board/chessboard.h"
 #include "board/boardmoves.h"
 
 
