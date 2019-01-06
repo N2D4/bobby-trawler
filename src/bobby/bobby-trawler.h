@@ -10,6 +10,7 @@
 #include "engine.h"
 #include "board/chessboard.h"
 #include "board/boardmoves.h"
+#include "board/boardsquare.cpp"
 
 
 /**

@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <vector>
-#include "square/boardsquare.h"
+#include "boardsquare.h"
 #include "boardposition.h"
 #include "boardmoves.h"
 

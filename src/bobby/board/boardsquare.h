@@ -4,10 +4,6 @@
 #include <iostream>
 #include "various/intstruct.h"
 
-struct BoardSquare;
-
-
-
 struct BoardSquares;
 
 /**
@@ -114,6 +110,33 @@ struct BoardSquares {
     static constexpr const BoardSquare WHITE_KING   = Colors::WHITE.data | Types::KING.data;
     static constexpr const BoardSquare BLACK_KING   = Colors::BLACK.data | Types::KING.data;
 };
+
+/*
+constexpr const BoardSquare::Type BoardSquares::Types::EMPTY;
+constexpr const BoardSquare::Type BoardSquares::Types::PAWN;
+constexpr const BoardSquare::Type BoardSquares::Types::KNIGHT;
+constexpr const BoardSquare::Type BoardSquares::Types::BISHOP;
+constexpr const BoardSquare::Type BoardSquares::Types::ROOK;
+constexpr const BoardSquare::Type BoardSquares::Types::QUEEN;
+constexpr const BoardSquare::Type BoardSquares::Types::KING;
+
+constexpr const BoardSquare::Color BoardSquares::Colors::EMPTY;
+constexpr const BoardSquare::Color BoardSquares::Colors::WHITE;
+constexpr const BoardSquare::Color BoardSquares::Colors::BLACK;
+
+constexpr const BoardSquare BoardSquares::EMPTY;
+constexpr const BoardSquare BoardSquares::WHITE_PAWN;
+constexpr const BoardSquare BoardSquares::BLACK_PAWN;
+constexpr const BoardSquare BoardSquares::WHITE_KNIGHT;
+constexpr const BoardSquare BoardSquares::BLACK_KNIGHT;
+constexpr const BoardSquare BoardSquares::WHITE_BISHOP;
+constexpr const BoardSquare BoardSquares::BLACK_BISHOP;
+constexpr const BoardSquare BoardSquares::WHITE_ROOK;
+constexpr const BoardSquare BoardSquares::BLACK_ROOK;
+constexpr const BoardSquare BoardSquares::WHITE_QUEEN;
+constexpr const BoardSquare BoardSquares::BLACK_QUEEN;
+constexpr const BoardSquare BoardSquares::WHITE_KING;
+constexpr const BoardSquare BoardSquares::BLACK_KING;*/
 
 
 #endif  // BOBBY_TRAWLER_SQUARE_BOARDSQUARES_H_

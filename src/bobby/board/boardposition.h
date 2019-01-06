@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
-#include "square/boardsquare.h"
+#include "boardsquare.h"
 
 /**
  * A simple structure for storing two values from 0-7, column and row, usually used to signal a position on the board,
