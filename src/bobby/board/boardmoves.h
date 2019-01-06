@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <stdexcept>
-#include "square/boardsquare.h"
+#include "boardsquare.h"
 #include "boardposition.h"
 #include "chessboard.h"
 

@@ -1,19 +1,23 @@
 // TODO-List
 // Some smaller TODO tasks are scattered around the code - search for "// TODO"
 
-// TODO: Wrap the lines in this file
-  // Some of the lines below are too long. I'm lazy, someone fix for me please
-
 // TODO: Revise the search algorithm
-  // Right now, we're just brute-forcing through all 64*64 possibly legal moves, and choose the best. Obviously that's kinda shitty and we should rather use something like min/max.
+  // Right now, we're just brute-forcing through all 64*64 possibly legal moves, and choose the best. Obviously that's
+  // kinda shitty and we should rather use something like min/max.
   
 // TODO: Revise the board scoring function
-  // Right now, we just use ChessBoard#getMaterialScore for the AI to evaluate moves. Replace with either some more clever function or machine learning
+  // Right now, we just use ChessBoard#getMaterialScore for the AI to evaluate moves. Replace with either some more
+  // clever function or machine learning
   
 // TODO: Caching statistics
-  // How much does caching/memoization really help? Create statistics about how many cachehits we have in the opening, midgame, and endgame, and whether we should enable caching also for opening and midgame (currently engame-only)
+  // How much does caching/memoization really help? Create statistics about how many cachehits we have in the opening,
+  // midgame, and endgame, and whether we should enable caching also for opening and midgame (currently engame-only)
   
 // TODO: Graphical user interface
-  // Not necessarily in C++. Maybe easier to use other languages/frameworks and just wrap around the CLI, but of course if you're into pain then C++ works too
+  // Not necessarily in C++. Maybe easier to use other languages/frameworks and just wrap around the CLI, but of course
+  // if you're into pain then C++ works too
   
+// TODO: Test units
+  // Any new feature might break an old one. We should be able to detect that somehow, therefore we need test units
+
 // TODO: Extend this list
