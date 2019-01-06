@@ -60,7 +60,7 @@ struct BoardMove {
     inline operator std::string() const { return std::string(from) + std::string(to) /* TODO: Add promoted piece *//*+ promoteTo == BoardSquares::Types::QUEEN ? "" : promoteTo*/; }
 
     // Implicit casting from C strings (for literals)
-    constexpr BoardMove(const char* str) : BoardMove((char[]) {str[0], str[1], 0}, (char[]) {str[2], str[3], 0}, bmctotype(str[4])) { }
+    constexpr BoardMove(const char* str) : BoardMove(str, str+2, bmctotype(str[4])) { }
     inline BoardMove& operator=(const char* str) { return *this = BoardMove(str); }
 };
 
@@ -90,7 +90,7 @@ struct DetailedMove : BoardMove {
         /**
          * see BoardMove::isPossibleFor(BoardSquare, bool)
          */
-        constexpr bool isPossibleFor(BoardSquare square) const { return BoardMove::isPossibleFor(square, this->captured != BoardSquares::EMPTY); }
+        inline bool isPossibleFor(BoardSquare square) const { return BoardMove::isPossibleFor(square, this->captured != BoardSquares::EMPTY); }
         constexpr bool isCastling() const { return this->type >= DetailedMove::MoveType::CASTLING_KINGSIDE; }
 };
 
