@@ -3,6 +3,9 @@
 
 ChessEngine::ChessEngine(ChessBoard& board) : board(board) { }
 
+int ChessEngine::cacheCalls[33] = {0};
+int ChessEngine::cacheHits[33] = {0};
+
 std::tuple<float, int, BoardMove> ChessEngine::findBestMove() {
     int depth = 4;
     while (true) {
@@ -42,8 +45,15 @@ std::tuple<float, int, BoardMove> ChessEngine::findBestMove(int depth) {
                         bool nd = true;
                         long long cacheName = board.getUniqueCacheName();
                         if (cacheName != 0) {
+                            int pieceCount = board.getPieceCount();
+                            if (pieceCount <= 32) {
+                                cacheCalls[pieceCount]++;
+                            }
                             std::unordered_map<long long, std::pair<float, int>>::iterator cacheEntry = memoizedPositions.find(cacheName);
                             if (cacheEntry != memoizedPositions.end() && cacheEntry->second.second >= depth) {
+                                if (pieceCount <= 32) {
+                                    cacheHits[pieceCount]++;
+                                }
                                 curScore = cacheEntry->second.first;
                                 curScore *= std::pow(0.999, depth - cacheEntry->second.second);
                                 nd = false;
