@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cstdint>
 #include "boardsquare.h"
 #include "boardposition.h"
 #include "boardmoves.h"
@@ -22,13 +23,28 @@ struct DetailedMove;
  * explicitly supposed to modify the board state (such as the move function itself).
  */
 class ChessBoard {
+    public: 
+        struct CacheName {
+            uint64_t a;
+            uint64_t b;
+            uint64_t c;
+
+            constexpr CacheName() : CacheName(0, 0, 0) { }
+            constexpr CacheName(uint64_t a, uint64_t b, uint64_t c) : a(a), b(b), c(c) { }
+            constexpr bool operator==(const CacheName& w) const { return a == w.a && b == w.b && c == w.c; }
+            constexpr bool operator!=(const CacheName& w) const { return !(*this == w); }
+            constexpr bool isInvalid() const { return a == 0 && b == 0 && c == 0; }
+            inline operator std::string() const { return std::to_string(a) + "/" + std::to_string(b) + "/" + std::to_string(c); }
+        };
+    
     private:
         float materialScore;
         int pieceCount;
         bool isLineEmpty(BoardPosition pos1, BoardPosition pos2);
         static int cacheNameHits[33];
         static int cacheNameCalls[33];
-        unsigned long long _priv_getUniqueCacheName() const;
+        CacheName _priv_getUniqueCacheName() const;
+        unsigned long long _priv_getShortUniqueCacheName() const;
 
     public:
         BoardSquare squares[8][8];
@@ -63,10 +79,20 @@ class ChessBoard {
          * still castle. As a rule of thumb, it succeeds to generate a unique value for most board positions with 7 or
          * less pieces, but might still fail even in those situations.
          */
-        unsigned long long getUniqueCacheName() const;
+        CacheName getUniqueCacheName() const;
 
         std::string toHumanReadable(bool ansi=false) const;
         std::string getInfo(bool ansi=false) const;
 };
+
+namespace std {
+    template <>
+    struct hash<ChessBoard::CacheName>
+    {
+        std::size_t operator()(const ChessBoard::CacheName& k) const {
+            return 31 * (31 * (713 + k.a) + k.b) + k.c;
+        }
+    };
+}
 
 #endif  // BOBBY_TRAWLER_BOBBY_CHESSBOARD_H_

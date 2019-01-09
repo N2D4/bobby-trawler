@@ -36,3 +36,6 @@
 // TODO: Modularize ChessEngine code
   // Create an interface for ChessEngines and make the current one implement that, so we can create multiple engines
   // and make them fight each other
+
+// TODO: 128-bit cache names
+  // So far, we're using 192-bit cache names. Try to go for 128

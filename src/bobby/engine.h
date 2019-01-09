@@ -12,7 +12,7 @@
  */
 class ChessEngine {
     private:
-        std::unordered_map<long long, std::pair<float, int>> memoizedPositions;
+        std::unordered_map<ChessBoard::CacheName, std::pair<float, int>> memoizedPositions;
 
     public:
         ChessBoard& board;

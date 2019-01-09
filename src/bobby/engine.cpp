@@ -12,7 +12,7 @@ std::tuple<float, int, BoardMove> ChessEngine::findBestMove() {
         std::tuple<float, int, BoardMove> tup = this->findBestMove(depth);
         float score = std::get<0>(tup);
         int bottomLayerMoves = std::get<1>(tup);
-        if (score > 1000 || depth >= 30 || bottomLayerMoves >= 400000) return tup;
+        if (score > 1000 || depth >= 30 || bottomLayerMoves >= 100000) return tup;
         depth += 1;
     }
 }
@@ -43,13 +43,16 @@ std::tuple<float, int, BoardMove> ChessEngine::findBestMove(int depth) {
                     this->board.move(move);
                     {
                         bool nd = true;
-                        long long cacheName = board.getUniqueCacheName();
-                        if (cacheName != 0) {
+                        ChessBoard::CacheName cacheName;
+                        if (depth > 1) {
+                            cacheName = board.getUniqueCacheName();
+                        }
+                        if (!cacheName.isInvalid()) {
                             int pieceCount = board.getPieceCount();
                             if (pieceCount <= 32) {
                                 cacheCalls[pieceCount]++;
                             }
-                            std::unordered_map<long long, std::pair<float, int>>::iterator cacheEntry = memoizedPositions.find(cacheName);
+                            std::unordered_map<ChessBoard::CacheName, std::pair<float, int>>::iterator cacheEntry = memoizedPositions.find(cacheName);
                             if (cacheEntry != memoizedPositions.end() && cacheEntry->second.second >= depth) {
                                 if (pieceCount <= 32) {
                                     cacheHits[pieceCount]++;
@@ -73,7 +76,7 @@ std::tuple<float, int, BoardMove> ChessEngine::findBestMove(int depth) {
                                 curScore += random(rng);
                             }
 
-                            if (cacheName != 0) {
+                            if (!cacheName.isInvalid()) {
                                 memoizedPositions[cacheName] = std::make_pair(curScore, depth);
                             }
                         }
@@ -108,7 +111,7 @@ int ChessEngine::getMemoizationCount() const {
 
 
 void ChessEngine::resetMemoizations() {
-    memoizedPositions = std::unordered_map<long long, std::pair<float, int>>();
+    memoizedPositions = std::unordered_map<ChessBoard::CacheName, std::pair<float, int>>();
 }
 
 
