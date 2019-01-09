@@ -16,6 +16,8 @@ class ChessEngine {
 
     public:
         ChessBoard& board;
+        static int cacheHits[33];
+        static int cacheCalls[33];
 
         ChessEngine(ChessBoard& board);
 

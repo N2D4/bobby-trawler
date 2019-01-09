@@ -82,6 +82,11 @@ int main() {
             std::cout << board.getInfo(true) << std::endl;
         } else if (movestr == "cachesize") {
             std::cout << "Cache size: " << engine.getMemoizationCount() << " entries" << std::endl;
+            std::cout << "Cache hit rates:" << std::endl;
+            for (int i = 0; i < 33; i++) {
+                if (engine.cacheCalls[i] <= 0) continue;
+                std::cout << "  " + std::to_string(i) + ": " + std::to_string(100.0 * engine.cacheHits[i] / (float) engine.cacheCalls[i]) + "% of " + std::to_string(engine.cacheCalls[i]) << std::endl;
+            }
         } else if (movestr == "resetcache") {
             engine.resetMemoizations();
             std::cout << "Removed all cache entries" << std::endl;
