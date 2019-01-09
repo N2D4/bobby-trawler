@@ -292,7 +292,7 @@ bool ChessBoard::isLegal(BoardMove bmove) {
         if (move.promoteTo == BoardSquares::Types::PAWN ||
             move.promoteTo == BoardSquares::Types::KING ||
             move.promoteTo == BoardSquares::Types::EMPTY) {
-             return false;
+            return false;
          }
 
     }
@@ -325,22 +325,55 @@ int ChessBoard::cacheNameHits[33] = {0};
 int ChessBoard::cacheNameCalls[33] = {0};
 
 // TODO: Add reading so we can verify and write testcases
-unsigned long long ChessBoard::getUniqueCacheName() const {
-    if (allowCastlingKingside.white || allowCastlingKingside.black || allowCastlingQueenside.white || allowCastlingQueenside.black) {
-        return 0;
-    }
-
+ChessBoard::CacheName ChessBoard::getUniqueCacheName() const {
     int pieceCount = getPieceCount();
-    if (getPieceCount() > 10) return 0;
 
-    int result = _priv_getUniqueCacheName();
-    ChessBoard::cacheNameCalls[pieceCount]++;
-    if (result != 0) ChessBoard::cacheNameHits[pieceCount]++;
+    CacheName result = _priv_getUniqueCacheName();
+    if (pieceCount <= 32 && pieceCount >= 0) {
+        ChessBoard::cacheNameCalls[pieceCount]++;
+        if (!result.isInvalid()) ChessBoard::cacheNameHits[pieceCount]++;
+    }
 
     return result;
 }
 
-unsigned long long ChessBoard::_priv_getUniqueCacheName() const {
+ChessBoard::CacheName ChessBoard::_priv_getUniqueCacheName() const {
+    uint64_t a = 0, b = 0, c = 0;
+    uint64_t *p = &b;
+    int pos = 0;
+    int nonEmpty = 0;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            BoardSquare square = squares[i][j];
+            if (!square.isEmpty()) {
+                a |= 1 << pos;
+                if (nonEmpty >= 18) {
+                    p = &c;
+                    nonEmpty = 0;
+                }
+                *p *= 2;
+                *p += square.colorId();
+                *p *= 6;
+                *p += square.typeId();
+                nonEmpty++;
+            }
+            pos++;
+        }
+    }
+
+    c |= (uint64_t) curColor.id() << 63;
+    c |= (uint64_t) allowCastlingKingside.white << 62;
+    c |= (uint64_t) allowCastlingQueenside.white << 61;
+    c |= (uint64_t) allowCastlingKingside.black << 60;
+    c |= (uint64_t) allowCastlingQueenside.black << 59;
+    const DetailedMove& mback = moves.back();
+    c |= (uint64_t) (mback.type == DetailedMove::MoveType::PAWN_DOUBLE ? 0b1000 | mback.to.column : 0) << 55;
+
+    if (nonEmpty > 32) return CacheName();
+    else return CacheName(a, b, c);
+}
+
+unsigned long long ChessBoard::_priv_getShortUniqueCacheName() const {
     unsigned long long result = 0;
     #define writeToResult(I, LEN)  {                                                \
         if (__builtin_umulll_overflow(result, LEN, &result)) return 0;        \
@@ -356,14 +389,14 @@ unsigned long long ChessBoard::_priv_getUniqueCacheName() const {
     BoardSquare opppwn(curColor, BoardSquares::Types::PAWN);
     int bsqci = curColor == BoardSquares::Colors::WHITE ? 4 : 3;
     for (int j = 0; j < 8; j++) {
-            if (squares[bsqci][j] == opppwn) {
-                if ((j >= 1 && squares[bsqci][j-1] == opawn) || (j <= 7 && squares[bsqci][j+1] == opawn)) {
-                    maxEnPassants++;
-                    if (moves.back().to == BoardPosition(bsqci, j)) {
-                        isEnPassant = maxEnPassants;
-                    }
+        if (squares[bsqci][j] == opppwn) {
+            if ((j >= 1 && squares[bsqci][j-1] == opawn) || (j <= 7 && squares[bsqci][j+1] == opawn)) {
+                maxEnPassants++;
+                if (moves.back().to == BoardPosition(bsqci, j)) {
+                    isEnPassant = maxEnPassants;
                 }
             }
+        }
     }
     outer:
     if (maxEnPassants >= 1) {
@@ -458,8 +491,8 @@ std::string ChessBoard::getInfo(bool ansi) const {
     result += "allowCastlingQueenside.black: " + std::string(allowCastlingQueenside.black ? "true" : "false") + "\n";
     result += "kingPos.white: " + std::string(kingPos.white) + "\n";
     result += "kingPos.black: " + std::string(kingPos.black) + "\n";
-    long long posName = getUniqueCacheName();
-    result += "Unique position name: " + std::string(posName == 0 ? "None" : std::to_string(posName)) + "\n";
+    CacheName posName = getUniqueCacheName();
+    result += "Unique position name: " + std::string(posName.isInvalid() ? "None" : std::string(posName)) + "\n";
     result += "moves: (length " + std::to_string(moves.size()) + ") ";
     for (int i = 0; i < moves.size(); i++) {
         result += std::string(moves[i]) + ", ";
