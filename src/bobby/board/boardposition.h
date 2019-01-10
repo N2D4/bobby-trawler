@@ -22,7 +22,7 @@ struct BoardPosition {
     constexpr bool operator!=(const BoardPosition& w) const { return !(*this == w); }
 
     constexpr bool isValid() const { return ((unsigned int) (this->column | this->row)) < 8; }
-    inline float getPawnBonusScore(BoardSquare::Color color) const { return std::pow(std::max(0.0, color == BoardSquares::Colors::BLACK ? 3.0 - this->row : this->row - 4.0), 2) / 3; }
+    inline float getPawnBonusScore(const BoardSquare::Color color) const { return std::pow(std::max(0.0, color == BoardSquares::Colors::BLACK ? 3.0 - this->row : this->row - 4.0), 2) / 3; }
     
     // Implicit casting from/to C++ strings
     inline BoardPosition(const std::string& str) : BoardPosition(str[0] - 'a', str[1] - '1') { }

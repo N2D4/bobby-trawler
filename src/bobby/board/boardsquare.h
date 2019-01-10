@@ -38,7 +38,8 @@ struct BoardSquare : IntStruct {
                         T white;
                         T black;
                         constexpr Container<T>(T white, T black) : white(white), black(black) {}
-                        inline T& operator[](BoardSquare::Color color) { return color.id() == 0 ? white : black; }
+                        inline T operator[](const BoardSquare::Color color) const { return color.id() == 0 ? white : black; }
+                        inline T& operator[](const BoardSquare::Color color) { return color.id() == 0 ? white : black; }
                 };
                 constexpr int id() const { return this->data == 0 ? -1 : (__builtin_clz(data) - __builtin_clz(0b10000000)); }
                 constexpr Color operator!() const { return Color(this->data ^ BoardSquare::COLOR_MASK); }
