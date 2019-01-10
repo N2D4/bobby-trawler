@@ -6,11 +6,8 @@
 #include <stdexcept>
 #include "boardsquare.h"
 #include "boardposition.h"
-#include "chessboard.h"
 
-struct DetailedMove;
 struct BoardSquare;
-class ChessBoard;
 
 constexpr static BoardSquare::Type bmctotype(const char c) {
     switch (c) {
@@ -51,7 +48,7 @@ struct BoardMove {
      * the piece is a pawn, the second argument isCapture is used to determine whether it can move diagonally or not.
      * If the square is empty, false will be returned.
      */
-    bool isPossibleFor(BoardSquare square, bool isCapture) const;
+    bool isPossibleFor(const BoardSquare square, bool isCapture) const;
 
 
     // Implicit casting from/to C++ strings
@@ -63,36 +60,5 @@ struct BoardMove {
     constexpr BoardMove(const char* str) : BoardMove(str, str+2, bmctotype(str[4])) { }
     inline BoardMove& operator=(const char* str) { return *this = BoardMove(str); }
 };
-
-
-/**
- * A fairly complex struct representing a chess move from some position from to a position to, with some additional
- * information related to the board state required to revert the board state back, such as the piece captured.
- * 
- * It is mostly used inside ChessBoard.
- */
-struct DetailedMove : BoardMove {
-    friend ChessBoard;
-
-    public:
-        enum MoveType : unsigned char {
-            NORMAL = 0, PAWN_DOUBLE = 1, ENPASSANT = 2, PROMOTION = 3, CASTLING_KINGSIDE = 4, CASTLING_QUEENSIDE = 5,
-        };
-
-        BoardSquare captured;
-        MoveType type;
-        int prevFlags;
-
-    private:
-        constexpr DetailedMove(BoardPosition from, BoardPosition to, BoardSquare::Type promoteTo, BoardSquare captured, MoveType type, int prevFlags) : BoardMove(from, to, promoteTo), captured(captured), type(type), prevFlags(prevFlags) { }
-    
-    public:
-        /**
-         * see BoardMove::isPossibleFor(BoardSquare, bool)
-         */
-        inline bool isPossibleFor(BoardSquare square) const { return BoardMove::isPossibleFor(square, this->captured != BoardSquares::EMPTY); }
-        constexpr bool isCastling() const { return this->type >= DetailedMove::MoveType::CASTLING_KINGSIDE; }
-};
-
 
 #endif  // BOBBY_TRAWLER_BOBBY_BOARDMOVES_H_

@@ -64,10 +64,8 @@ DetailedMove ChessBoard::createDetailedMove(BoardMove move) const {
 
 
 
-void ChessBoard::move(BoardMove move) {
-    this->move(this->createDetailedMove(move));
-}
-void ChessBoard::move(DetailedMove move) {
+
+void ChessBoard::moveDetailed(const DetailedMove& move) {
     BoardSquare piece = (*this)[move.from];
     float materialScoreIncrease = move.captured.type().getScore();
     if (move.captured.type() == BoardSquares::Types::PAWN) {
@@ -177,15 +175,6 @@ void ChessBoard::revert() {
 
 
 
-
-
-bool ChessBoard::isCheck() {
-    return this->isCheck(this->curColor);
-}
-
-bool ChessBoard::isCheck(BoardSquare::Color color) {
-    return this->isSquareAttacked(!color, this->kingPos[color]);
-}
 
 bool ChessBoard::isSquareAttacked(BoardSquare::Color by, BoardPosition position) const {
     // Go horizontally, vertically, and diagonally and find the closest piece each
@@ -298,7 +287,7 @@ bool ChessBoard::isLegal(BoardMove bmove) {
     }
 
     // Can't move into check
-    this->move(move);
+    this->moveDetailed(move);
     bool wasCheck = this->isCheck(fromSq.color());
     this->revert();
     if (wasCheck) return false;

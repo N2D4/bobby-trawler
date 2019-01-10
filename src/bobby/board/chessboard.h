@@ -7,8 +7,8 @@
 #include "boardsquare.h"
 #include "boardposition.h"
 #include "boardmoves.h"
+#include "detailedmove.h"
 
-struct BoardMove;
 struct BoardSquare;
 struct DetailedMove;
 
@@ -57,16 +57,16 @@ class ChessBoard {
         constexpr BoardSquare operator[](BoardPosition position) const { return this->squares[position.column][position.row]; }
         inline BoardSquare& operator[](BoardPosition position) { return this->squares[position.column][position.row]; }
 
-        DetailedMove createDetailedMove(BoardMove move) const;
+        DetailedMove createDetailedMove(const BoardMove move) const;
 
-        void move(BoardMove move);
-        void move(DetailedMove move);
+        inline void move(const BoardMove move) { moveDetailed(createDetailedMove(move)); }
+        void moveDetailed(const DetailedMove& move);
         void revert();
 
-        bool isCheck();
-        bool isCheck(BoardSquare::Color color);
-        bool isSquareAttacked(BoardSquare::Color color, BoardPosition position) const;
-        bool isLegal(BoardMove move);
+        inline bool isCheck() const { return isCheck(this->curColor); }
+        inline bool isCheck(const BoardSquare::Color color) const { return isSquareAttacked(!color, this->kingPos[color]); }
+        bool isSquareAttacked(const BoardSquare::Color color, BoardPosition position) const;
+        bool isLegal(const BoardMove move);
 
         constexpr float getMaterialScore() const { return this->materialScore; }
         constexpr float getMaterialScore(BoardSquare::Color color) const { return color == BoardSquares::Colors::WHITE ? getMaterialScore() : -getMaterialScore(); }
