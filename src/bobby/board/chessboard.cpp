@@ -120,7 +120,7 @@ void ChessBoard::moveDetailed(const DetailedMove& move) {
 void ChessBoard::revert() {
     DetailedMove move = this->moves.back();
     this->moves.pop_back();
-
+    
     this->curColor = !this->curColor;
 
     float materialScoreDecrease = move.captured.type().getScore();
@@ -495,5 +495,115 @@ std::string ChessBoard::getInfo(bool ansi) const {
     
     result += toHumanReadable(ansi);
     return result;
+}
+
+
+
+
+/*ChessBoard::MoveIterator ChessBoard::MoveIterator::end = MoveIterator();
+
+
+ChessBoard::MoveIterator& ChessBoard::LineMoveIterator::operator++() {
+    do {
+        if (rem == 0) return MoveIterator::end;
+        move.to.column += dx;
+        move.to.row += dy;
+        if (!board[move.to].isEmpty()) {
+            if (board.isLegal(move)) return *this;
+            goto skp;
+        }
+        if (!move.to.isValid()) {
+            skp:
+                nextRem();
+                move.to = move.from;
+                continue;
+        }
+    } while (!board.isLegal(move));
+    return *this;
+}
+
+ChessBoard::MoveIterator ChessBoard::getMoves(const BoardPosition pos) const {
+    switch ((*this)[pos].typeId()) {
+        case -1:            // empty
+            return MoveIterator::end;
+        case 0:             // king
+            class {
+
+            } KingIterator;
+            return ArrayMoveIterator();
+
+    }
+}*/
+
+void ChessBoard::forEachMove(const BoardPosition pos, std::function<void (BoardMove)> func) {
+    BoardMove move(pos, pos);
+    BoardSquare square = (*this)[pos];
+
+    #define CCHECK(i, j)                                                                            \
+        move.to.column += i;                                                                        \
+        move.to.row += j;                                                                           \
+        if (move.to.isValid() && isLegal(move)) func(move)
+
+    #define LCHECK(i, j)                                                                            \
+        move.to = move.from;                                                                        \
+        while (true) {                                                                              \
+            move.to.row += i, move.to.column += j;                                                  \
+            if (!move.to.isValid()) break;                                                          \
+            if (isLegal(move)) func(move);                                                          \
+            if (!(*this)[move.to].isEmpty()) break;                                                 \
+        }
+
+    switch (square.typeId()) {
+        case 0:             // king
+            CCHECK(-1, 0);
+            CCHECK(-1, 0);
+            CCHECK(4, 0);
+            CCHECK(-1, 0);
+            CCHECK(0, 1);
+            CCHECK(-1, 0);
+            CCHECK(-1, 0);
+            CCHECK(0, -2);
+            CCHECK(1, 0);
+            CCHECK(1, 0);
+            break;
+        case 1:             // queen
+            LCHECK(1, 0);
+            LCHECK(-1, 0);
+            LCHECK(0, 1);
+            LCHECK(0, -1);
+        case 3:             // bishop
+            LCHECK(1, 1);
+            LCHECK(1, -1);
+            LCHECK(-1, 1);
+            LCHECK(-1, -1);
+            break;
+        case 2:             // rook
+            LCHECK(1, 0);
+            LCHECK(-1, 0);
+            LCHECK(0, 1);
+            LCHECK(0, -1);
+            break;
+        case 4:             // knight
+            CCHECK(2, 1);
+            CCHECK(0, -2);
+            CCHECK(-1, -1);
+            CCHECK(-2, 0);
+            CCHECK(-1, 1);
+            CCHECK(0, 2);
+            CCHECK(1, 1);
+            CCHECK(2, 0);
+            break;
+        case 5:             // pawn
+            int rn = square.color() == BoardSquares::Colors::WHITE ? 1 : -1;
+            CCHECK(0, rn);
+            CCHECK(1, 0);
+            CCHECK(-2, 0);
+            CCHECK(1, rn);
+            break;
+
+    }
+
+    #undef LCHECK
+    #undef CCHECK
 }
 

@@ -54,6 +54,7 @@ int main() {
             std::cout << "  go4evah: Make engine play forever (actually, 10000 moves)" << std::endl;
             std::cout << "  help: Show this help page" << std::endl;
             std::cout << "  info: Display board position info" << std::endl;
+            std::cout << "  legals: Show legal moves for a piece" << std::endl;
             std::cout << "  rem: Remove a piece" << std::endl;
             std::cout << "  resetcache: Empty the cache" << std::endl;
             std::cout << "  score: Display raw material score" << std::endl;
@@ -90,6 +91,14 @@ int main() {
         } else if (movestr == "resetcache") {
             engine.resetMemoizations();
             std::cout << "Removed all cache entries" << std::endl;
+        } else if (movestr == "legals") {
+            std::cout << "Position of the piece to check: ";
+            std::string posstr;
+            std::cin >> posstr;
+            std::cout << "Legal moves for " << posstr << ":" << std::endl;
+            board.forEachMove(posstr, [](BoardMove move) {
+                std::cout << std::string(move) << std::endl;
+            });
         } else {
             BoardMove move = "a1a1";
             if (--goRemaining >= 0 || movestr == "go" || movestr == "g") {                                         // If the AI should play...

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <cstdint>
+#include <iterator>
 #include "boardsquare.h"
 #include "boardposition.h"
 #include "boardmoves.h"
@@ -62,6 +63,41 @@ class ChessBoard {
         inline void move(const BoardMove move) { moveDetailed(createDetailedMove(move)); }
         void moveDetailed(const DetailedMove& move);
         void revert();
+
+        /*class MoveIterator : public std::iterator<std::input_iterator_tag, BoardMove> {
+            private:
+                constexpr MoveIterator() { }
+            public:
+                static MoveIterator end;
+                virtual MoveIterator& operator++();
+                virtual MoveIterator operator++(int);
+                constexpr bool operator==(const MoveIterator& rhs) const { return (*this == end && rhs == end); }
+                constexpr bool operator!=(const MoveIterator& rhs) const { return !(*this == rhs); }
+                virtual BoardMove& operator*();
+
+        };
+        class LineMoveIterator : MoveIterator {
+            private:
+                ChessBoard& board;
+                BoardMove move;
+                int dx, dy;
+                int rem;
+            public:
+                constexpr LineMoveIterator(ChessBoard& board, const BoardPosition pos, const int rem) : board(board), move(pos, pos), rem(rem), dx(0), dy(0) { nextRem(); operator++(); }
+                constexpr LineMoveIterator(const LineMoveIterator& it) : board(it.board), move(it.move), rem(it.rem), dx(it.dx), dy(it.dy) { }
+                inline void nextRem() { rem &= rem - 1; int r = __builtin_ctz(rem); dx = r % 3 - 1; dy = r / 3 - 1; }
+                MoveIterator& operator++() override;
+                inline MoveIterator operator++(int) override { LineMoveIterator tmp(*this); operator++(); return tmp; }
+                BoardMove& operator*() override { return move; }
+        };
+        template <int N>
+        class ArrayMoveIterator : MoveIterator {
+            private:
+                ChessBoard& board;
+                BoardPosition[N] arr;
+        };*/
+        //MoveIterator getMoves(const BoardPosition pos) const;
+        void forEachMove(const BoardPosition pos, std::function<void (BoardMove)> func);
 
         inline bool isCheck() const { return isCheck(this->curColor); }
         inline bool isCheck(const BoardSquare::Color color) const { return isSquareAttacked(!color, this->kingPos[color]); }
