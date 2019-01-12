@@ -13,6 +13,7 @@
   // Right now, we just use ChessBoard#getMaterialScore for the AI to evaluate moves. Replace with either some more
   // clever function or machine learning  
 
+
 // TODO: Graphical user interface
   // Not necessarily in C++. Maybe easier to use other languages/frameworks and just wrap around the CLI, but of course
   // if you're into pain then C++ works too
@@ -37,5 +38,11 @@
   // Create an interface for ChessEngines and make the current one implement that, so we can create multiple engines
   // and make them fight each other
 
-// TODO: 128-bit cache names
-  // So far, we're using 192-bit cache names. Try to go for 128
+
+// TODO: Optimize ChessBoard#isSquareAttacked method
+  // The biggest bottleneck at the moment. Is used in isCheck at the end of isLegal. Optimizing the function could
+  // improve performance by 20%+
+
+
+// TODO: Implement draws
+  // Right now, draws (except stalemates) are not understood by the engine. Fix that
