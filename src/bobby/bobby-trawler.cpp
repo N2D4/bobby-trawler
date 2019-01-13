@@ -23,7 +23,7 @@ int main() {
 
     // Ask for moves, or let the AI play
     ChessBoard board = ChessBoard();
-    ChessEngine engine = ChessEngine(board);
+    TannerEngine engine(board);
     int goRemaining = 0;   // number of moves the AI should play automatically instead of asking the user
     while (true) {
         // Print out board and message if check

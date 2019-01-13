@@ -1,16 +1,17 @@
-#ifndef BOBBY_TRAWLER_BOBBY_ENGINE_H_
-#define BOBBY_TRAWLER_BOBBY_ENGINE_H_
+#ifndef BOBBY_TRAWLER_BOBBY_ENGINES_TANNER_H_
+#define BOBBY_TRAWLER_BOBBY_ENGINES_TANNER_H_
 
 #include <vector>
 #include <stdlib.h>
 #include <unordered_map>
 #include <random>
-#include "board/chessboard.h"
+#include "../board/chessboard.h"
+#include "engine.h"
 
 /**
- * The class containing the code for the Bobby Trawler chess engine itself.
+ * The Tanner brute-force engine.
  */
-class ChessEngine {
+class TannerEngine : ChessEngine {
     private:
         std::unordered_map<ChessBoard::CacheName, std::pair<float, int>> memoizedPositions;
 
@@ -19,7 +20,7 @@ class ChessEngine {
         static int cacheHits[33];
         static int cacheCalls[33];
 
-        ChessEngine(ChessBoard& board);
+        TannerEngine(ChessBoard& board);
 
         std::tuple<float, int, BoardMove> findBestMove();
         std::tuple<float, int, BoardMove> findBestMove(int depth);
@@ -28,4 +29,4 @@ class ChessEngine {
         void resetMemoizations();
 };
 
-#endif  // BOBBY_TRAWLER_BOBBY_ENGINE_H_
+#endif  // BOBBY_TRAWLER_BOBBY_ENGINES_TANNER_H_
