@@ -1,12 +1,12 @@
-#include "engine.h"
+#include "tanner.h"
 
 
-ChessEngine::ChessEngine(ChessBoard& board) : board(board) { }
+TannerEngine::TannerEngine(ChessBoard& board) : board(board) { }
 
-int ChessEngine::cacheCalls[33] = {0};
-int ChessEngine::cacheHits[33] = {0};
+int TannerEngine::cacheCalls[33] = {0};
+int TannerEngine::cacheHits[33] = {0};
 
-std::tuple<float, int, BoardMove> ChessEngine::findBestMove() {
+std::tuple<float, int, BoardMove> TannerEngine::findBestMove() {
     int depth = 5;
     while (true) {
         std::tuple<float, int, BoardMove> tup = this->findBestMove(depth);
@@ -17,7 +17,7 @@ std::tuple<float, int, BoardMove> ChessEngine::findBestMove() {
     }
 }
 
-std::tuple<float, int, BoardMove> ChessEngine::findBestMove(int depth) {
+std::tuple<float, int, BoardMove> TannerEngine::findBestMove(int depth) {
     static std::default_random_engine rng(133742);
     static std::normal_distribution<float> random(0.0, 0.00002);
 
@@ -100,12 +100,12 @@ std::tuple<float, int, BoardMove> ChessEngine::findBestMove(int depth) {
 
 
 
-int ChessEngine::getMemoizationCount() const {
+int TannerEngine::getMemoizationCount() const {
     return memoizedPositions.size();
 }
 
 
-void ChessEngine::resetMemoizations() {
+void TannerEngine::resetMemoizations() {
     memoizedPositions = std::unordered_map<ChessBoard::CacheName, std::pair<float, int>>();
 }
 

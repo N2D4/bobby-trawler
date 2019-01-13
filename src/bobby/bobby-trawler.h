@@ -7,7 +7,8 @@
 #include <thread>
 #include <iomanip>
 #include <algorithm>
-#include "engine.h"
+#include "engines/engine.h"
+#include "engines/tanner.h"
 #include "board/chessboard.h"
 #include "board/boardmoves.h"
 #include "board/boardsquare.cpp"
