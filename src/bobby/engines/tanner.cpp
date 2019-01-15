@@ -6,18 +6,16 @@ TannerEngine::TannerEngine(ChessBoard& board) : board(board) { }
 int TannerEngine::cacheCalls[33] = {0};
 int TannerEngine::cacheHits[33] = {0};
 
-std::tuple<float, int, BoardMove> TannerEngine::findBestMove() {
+ChessEngine::CalculatedMove TannerEngine::findBestMove() {
     int depth = 5;
     while (true) {
-        std::tuple<float, int, BoardMove> tup = this->findBestMove(depth);
-        float score = std::get<0>(tup);
-        int bottomLayerMoves = std::get<1>(tup);
-        if (score > 1000 || depth >= 30 || bottomLayerMoves >= 600000) return tup;
+        ChessEngine::CalculatedMove tup = this->findBestMove(depth);
+        if (tup.score > 1000 || tup.depth >= 30 || tup.movesAnalyzed >= 600000) return tup;
         depth += 1;
     }
 }
 
-std::tuple<float, int, BoardMove> TannerEngine::findBestMove(int depth) {
+ChessEngine::CalculatedMove TannerEngine::findBestMove(int depth) {
     static std::default_random_engine rng(133742);
     static std::normal_distribution<float> random(0.0, 0.00002);
 
@@ -61,9 +59,9 @@ std::tuple<float, int, BoardMove> TannerEngine::findBestMove(int depth) {
                         // Calculate board score
                         if (depth > 1) {            // recurse deeper
                             int n;
-                            std::tie(curScore, n, std::ignore) = this->findBestMove(depth - 1);
-                            curScore *= 0.999;
-                            totalBottomLayerMoves += n;
+                            ChessEngine::CalculatedMove cres = this->findBestMove(depth - 1);
+                            curScore = cres.score * 0.999;
+                            totalBottomLayerMoves += cres.movesAnalyzed;
                         } else {                    // base case
                             curScore = this->board.getMaterialScore(this->board.curColor);
 
@@ -93,7 +91,7 @@ std::tuple<float, int, BoardMove> TannerEngine::findBestMove(int depth) {
         bestScore = this->board.isCheck() ? -10000 + random(rng) : 0;
     }
 
-    return std::make_tuple(bestScore, totalBottomLayerMoves, bestMove);
+    return ChessEngine::CalculatedMove(bestMove, bestScore, totalBottomLayerMoves, depth);
 }
 
 
