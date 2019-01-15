@@ -22,8 +22,8 @@ class TannerEngine : ChessEngine {
 
         TannerEngine(ChessBoard& board);
 
-        std::tuple<float, int, BoardMove> findBestMove();
-        std::tuple<float, int, BoardMove> findBestMove(int depth);
+        ChessEngine::CalculatedMove findBestMove();
+        ChessEngine::CalculatedMove findBestMove(int depth);
 
         int getMemoizationCount() const;
         void resetMemoizations();

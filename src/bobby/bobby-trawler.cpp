@@ -103,11 +103,11 @@ int main() {
             BoardMove move = "a1a1";
             if (--goRemaining >= 0 || movestr == "go" || movestr == "g") {                                         // If the AI should play...
                 std::cout << "As a perfect AI, I choose... " << std::flush;
-                std::tuple<float, int, BoardMove> res = engine.findBestMove();   // ...ask the AI for the move
-                move = std::get<2>(res);
+                ChessEngine::CalculatedMove res = engine.findBestMove();   // ...ask the AI for the move
+                move = res.move;
                 std::cout << std::string(move) << "!" << std::endl;
-                float score = std::get<0>(res) * (board.curColor == BoardSquares::Colors::WHITE ? 1 : -1);
-                std::cout << "Score: " << std::fixed << std::setprecision(3) << score << " (" << std::to_string(std::get<1>(res)) << " positions analyzed)" << std::endl;
+                float score = res.score * (board.curColor == BoardSquares::Colors::WHITE ? 1 : -1);
+                std::cout << "Score: " << std::fixed << std::setprecision(3) << score << " (depth " << std::to_string(res.depth) << ", " << std::to_string(res.movesAnalyzed) << " positions analyzed)" << std::endl;
             } else {                                                                    // else, convert the string the
                 move = movestr;                                                         // user entered into a move
             }
