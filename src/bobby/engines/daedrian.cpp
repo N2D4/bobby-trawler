@@ -10,8 +10,8 @@ int DaedrianEngine::cacheHits[33] = {0};
 ChessEngine::CalculatedMove DaedrianEngine::findBestMove() {
     int b = 0;
     while (true) {
-        ChessEngine::CalculatedMove tup = findBestMove(5, 1.0, 4+b, 4);
-        if (tup.score > 1000 || tup.depth >= 30 || tup.movesAnalyzed >= 600000) return tup;
+        ChessEngine::CalculatedMove tup = findBestMove(3 + b/2.5, 0.3, 4, 3);
+        if (std::abs(tup.score) > 1000 || b >= 30 || tup.movesAnalyzed >= 600000) return tup;
         b += 1;
     }
 }
