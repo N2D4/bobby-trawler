@@ -2,11 +2,6 @@
 // Some smaller TODO tasks are scattered around the code - search for "// TODO"
 
 // This list is incomplete; you can help by expanding it
-
-
-// TODO: Revise the search algorithm
-  // Right now, we're just brute-forcing through all 64*64 possibly legal moves, and choose the best. Obviously that's
-  // kinda shitty and we should rather use something like min/max.
   
 
 // TODO: Revise the board scoring function
