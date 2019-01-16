@@ -19,12 +19,11 @@ ChessEngine::CalculatedMove TannerEngine::findBestMove(int depth) {
     static std::default_random_engine rng(133742);
     static std::normal_distribution<float> random(0.0, 0.00002);
 
-    // Find the best of all 64*64 theoretical moves
     float bestScore = NAN;
     BoardMove bestMove = "e2e4";
     int totalBottomLayerMoves = 0;
 
-    // Our move is from position (i, j) to (k, l)
+    // Go through all 64 positions, and through every legal move each
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             if (board.squares[i][j].color() != board.curColor) continue;

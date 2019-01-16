@@ -13,16 +13,15 @@ class ChessEngine {
         struct CalculatedMove {
             BoardMove move;
             float score;
-            int movesAnalyzed;
             int depth;
             int selectiveDepth;
+            long movesAnalyzed;
 
             constexpr CalculatedMove(const BoardMove move, const float score, const int movesAnalyzed, const int depth) : CalculatedMove(move, score, movesAnalyzed, depth, depth) { }
             constexpr CalculatedMove(const BoardMove move, const float score, const int movesAnalyzed, const int depth, const int selectiveDepth) : move(move), score(score), movesAnalyzed(movesAnalyzed), depth(depth), selectiveDepth(selectiveDepth) { }
         };
 
         virtual CalculatedMove findBestMove() = 0;
-        virtual CalculatedMove findBestMove(int depth) = 0;
 
         virtual int getMemoizationCount() const = 0;
         virtual void resetMemoizations() = 0;

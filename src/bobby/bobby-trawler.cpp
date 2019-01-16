@@ -23,7 +23,7 @@ int main() {
 
     // Ask for moves, or let the AI play
     ChessBoard board = ChessBoard();
-    TannerEngine engine(board);
+    DaedrianEngine engine(board);
     int goRemaining = 0;   // number of moves the AI should play automatically instead of asking the user
     while (true) {
         // Print out board and message if check
@@ -107,7 +107,7 @@ int main() {
                 move = res.move;
                 std::cout << std::string(move) << "!" << std::endl;
                 float score = res.score * (board.curColor == BoardSquares::Colors::WHITE ? 1 : -1);
-                std::cout << "Score: " << std::fixed << std::setprecision(3) << score << " (depth " << std::to_string(res.depth) << ", " << std::to_string(res.movesAnalyzed) << " positions analyzed)" << std::endl;
+                std::cout << "Score: " << std::fixed << std::setprecision(3) << score << " (seldepth " << std::to_string(res.selectiveDepth) << ", depth " << std::to_string(res.depth) << ", " << std::to_string(res.movesAnalyzed) << " positions analyzed)" << std::endl;
             } else {                                                                    // else, convert the string the
                 move = movestr;                                                         // user entered into a move
             }
