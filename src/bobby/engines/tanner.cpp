@@ -10,7 +10,7 @@ ChessEngine::CalculatedMove TannerEngine::findBestMove() {
     int depth = 5;
     while (true) {
         ChessEngine::CalculatedMove tup = this->findBestMove(depth);
-        if (tup.score > 1000 || tup.depth >= 30 || tup.movesAnalyzed >= 600000) return tup;
+        if (tup.score > 1000 || tup.depth >= 30 || tup.movesAnalyzed >= 60000) return tup;
         depth += 1;
     }
 }

@@ -23,8 +23,10 @@ int main() {
 
     // Ask for moves, or let the AI play
     ChessBoard board = ChessBoard();
-    DaedrianEngine engine(board);
+    DaedrianEngine daedrian(board);
+    TannerEngine tanner(board);
     int goRemaining = 0;   // number of moves the AI should play automatically instead of asking the user
+    bool isFighting = false;
     while (true) {
         // Print out board and message if check
         std::cout << board.toHumanReadable(true) << std::endl;
@@ -33,10 +35,12 @@ int main() {
         // Read in what the user entered, if the AI isn't set to play automatically
         std::string movestr;
         if (goRemaining <= 0) {
+            isFighting = false;
             std::cout << "Move: ";
             std::cin >> movestr;
             // If the user enters 'go4evah', make the AI start playing automatically
-            if (movestr == "go4evah") goRemaining = 10000;
+            if (movestr == "go4evah" || movestr == "fite") goRemaining = 10000;
+            if (movestr == "fite") isFighting = true;
             if (movestr == "go4") {
                 std::cout << "Number of moves: " << std::endl;
                 std::cin >> goRemaining;
@@ -49,6 +53,7 @@ int main() {
             std::cout << "  back: Take back the most recent move" << std::endl;
             std::cout << "  cachesize: Display cache size info" << std::endl;
             std::cout << "  check: Display check status" << std::endl;
+            std::cout << "  fite: Start a duel between Tanner and Daedrian. Tanner will be the first to play; to make Daedrian go first, use 'go fite'" << std::endl;
             std::cout << "  go: Make engine play a single move" << std::endl;
             std::cout << "  go4: Make engine play a custom number of moves" << std::endl;
             std::cout << "  go4evah: Make engine play forever (actually, 10000 moves)" << std::endl;
@@ -82,14 +87,16 @@ int main() {
         } else if (movestr == "info" || movestr == "i") {
             std::cout << board.getInfo(true) << std::endl;
         } else if (movestr == "cachesize") {
-            std::cout << "Cache size: " << engine.getMemoizationCount() << " entries" << std::endl;
-            std::cout << "Cache hit rates:" << std::endl;
+            std::cout << "Cache size (Tanner): " << tanner.getMemoizationCount() << " entries" << std::endl;
+            std::cout << "Cache size (Daedrian): " << daedrian.getMemoizationCount() << " entries" << std::endl;
+            std::cout << "Cache hit rates (Daedrian):" << std::endl;
             for (int i = 0; i < 33; i++) {
-                if (engine.cacheCalls[i] <= 0) continue;
-                std::cout << "  " + std::to_string(i) + ": " + std::to_string(100.0 * engine.cacheHits[i] / (float) engine.cacheCalls[i]) + "% of " + std::to_string(engine.cacheCalls[i]) << std::endl;
+                if (daedrian.cacheCalls[i] <= 0) continue;
+                std::cout << "  " + std::to_string(i) + ": " + std::to_string(100.0 * daedrian.cacheHits[i] / (float) daedrian.cacheCalls[i]) + "% of " + std::to_string(daedrian.cacheCalls[i]) << std::endl;
             }
         } else if (movestr == "resetcache") {
-            engine.resetMemoizations();
+            tanner.resetMemoizations();
+            daedrian.resetMemoizations();
             std::cout << "Removed all cache entries" << std::endl;
         } else if (movestr == "legals") {
             std::cout << "Position of the piece to check: ";
@@ -103,6 +110,7 @@ int main() {
             BoardMove move = "a1a1";
             if (--goRemaining >= 0 || movestr == "go" || movestr == "g") {                                         // If the AI should play...
                 std::cout << "As a perfect AI, I choose... " << std::flush;
+                ChessEngine& engine = isFighting && goRemaining % 2 == 1 ? (ChessEngine&) tanner : (ChessEngine&) daedrian;
                 ChessEngine::CalculatedMove res = engine.findBestMove();   // ...ask the AI for the move
                 move = res.move;
                 std::cout << std::string(move) << "!" << std::endl;
