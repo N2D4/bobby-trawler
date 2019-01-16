@@ -8,7 +8,12 @@ int DaedrianEngine::cacheCalls[33] = {0};
 int DaedrianEngine::cacheHits[33] = {0};
 
 ChessEngine::CalculatedMove DaedrianEngine::findBestMove() {
-    return findBestMove(5, 2.5, 1, 1);
+    int b = 0;
+    while (true) {
+        ChessEngine::CalculatedMove tup = findBestMove(5, 1.0, 4+b, 4);
+        if (tup.score > 1000 || tup.depth >= 30 || tup.movesAnalyzed >= 600000) return tup;
+        b += 1;
+    }
 }
 
 ChessEngine::CalculatedMove DaedrianEngine::findBestMove(float selwidth, float seldec, int depth, int nextDepth) {
@@ -27,7 +32,6 @@ ChessEngine::CalculatedMove DaedrianEngine::findBestMove(float selwidth, float s
 
     std::tuple<float, int, BoardMove> best = std::make_tuple(- std::numeric_limits<float>::infinity(), 0, "h7h7");
     for (std::pair<float, BoardMove> pair : candidates) {
-        //std::cout << " " << pair.first << " " << std::string(pair.second) << std::endl;
         board.move(pair.second);
             ChessEngine::CalculatedMove nxt = findBestMove(selwidth - seldec, seldec, nextDepth, nextDepth);
         board.revert();
@@ -39,7 +43,6 @@ ChessEngine::CalculatedMove DaedrianEngine::findBestMove(float selwidth, float s
 
     if (std::isinf(std::get<0>(best))) std::get<0>(best) = board.isCheck() ? -10000 + random(rng) : 0;
 
-    //std::cout << selwidth << " " << std::get<0>(best) << " " << std::string(std::get<2>(best)) << " " << std::get<1>(best) << std::endl;
     return ChessEngine::CalculatedMove(std::get<2>(best), std::get<0>(best), totalBottomLayerMoves, depth, std::get<1>(best) + 1);
 }
 
