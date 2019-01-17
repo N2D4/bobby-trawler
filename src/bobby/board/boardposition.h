@@ -26,6 +26,7 @@ struct BoardPosition {
     
     // Implicit casting from/to C++ strings
     inline BoardPosition(const std::string& str) : BoardPosition(str[0] - 'a', str[1] - '1') { }
+    inline BoardPosition operator=(const std::string& str) { return *this = BoardPosition(str); }
     inline BoardPosition& operator=(const std::string& str) const { return *this = BoardPosition(str); }
     inline operator std::string() const { return std::string({(char) ('a' + column),(char) ('1' + row), '\0'}); }
 
