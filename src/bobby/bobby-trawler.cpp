@@ -128,13 +128,16 @@ int main() {
                 } else {
                     if (selPos.isValid()) {
                         move = BoardMove(selPos, movestr);
-                    } else {
+                    }
+                    if (!selPos.isValid() || !board.isLegal(move)) {
                         doMove = false;
                         selPos = movestr;
-                        marked.push_back(std::make_tuple(selPos, 130, 173));
-                        board.forEachMove(selPos, [&marked](BoardMove move) {
+                        bool someIsPossible = false;
+                        board.forEachMove(selPos, [&marked, &someIsPossible](BoardMove move) {
+                            someIsPossible = true;
                             marked.push_back(std::make_tuple(move.to, 40, 46));
                         });
+                        marked.push_back(someIsPossible ? std::make_tuple(selPos, 69, 75) : std::make_tuple(selPos, 130, 173));
                     }
                 }
             }
