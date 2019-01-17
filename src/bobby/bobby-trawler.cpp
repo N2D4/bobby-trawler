@@ -23,13 +23,16 @@ int main() {
 
     // Ask for moves, or let the AI play
     ChessBoard board = ChessBoard();
+    BoardPosition selPos(-1, -1);
+    std::vector<std::tuple<BoardPosition, int, int>> marked;
     DaedrianEngine daedrian(board);
     TannerEngine tanner(board);
     int goRemaining = 0;   // number of moves the AI should play automatically instead of asking the user
     bool isFighting = false;
     while (true) {
         // Print out board and message if check
-        std::cout << board.toHumanReadable(true) << std::endl;
+        std::cout << board.toHumanReadable(marked, true) << std::endl;
+        marked.clear();
         if (board.isCheck()) std::cout << "Check!" << std::endl;
 
         // Read in what the user entered, if the AI isn't set to play automatically
@@ -49,7 +52,7 @@ int main() {
 
         if (movestr == "help" || movestr == "h") {
             std::cout << "==== AVAILABLE COMMANDS ====" << std::endl;
-            std::cout << "  A#A#P: 4 character move, whereas A is a character from a-h and # a number from 1-8 and P is optionally a promoted piece (Q/R/B/N, default Q)" << std::endl;
+            std::cout << "  A#A#P: 4 character move, whereas A is a character from a-h, # a number from 1-8 and P is optionally a promoted piece (Q/R/B/N, default Q)" << std::endl;
             std::cout << "  back: Take back the most recent move" << std::endl;
             std::cout << "  cachesize: Display cache size info" << std::endl;
             std::cout << "  check: Display check status" << std::endl;
@@ -102,11 +105,14 @@ int main() {
             std::cout << "Position of the piece to check: ";
             std::string posstr;
             std::cin >> posstr;
-            std::cout << "Legal moves for " << posstr << ":" << std::endl;
-            board.forEachMove(posstr, [](BoardMove move) {
+            BoardPosition pos = posstr;
+            std::cout << "Legal moves for " << std::string(pos) << ":" << std::endl;
+            board.forEachMove(pos, [&marked](BoardMove move) {
                 std::cout << std::string(move) << std::endl;
+                marked.push_back(std::make_tuple(move.to, 40, 46));
             });
         } else {
+            bool doMove = true;
             BoardMove move = "a1a1";
             if (--goRemaining >= 0 || movestr == "go" || movestr == "g") {                                         // If the AI should play...
                 std::cout << "As a perfect AI, I choose... " << std::flush;
@@ -116,15 +122,30 @@ int main() {
                 std::cout << std::string(move) << "!" << std::endl;
                 float score = res.score * (board.curColor == BoardSquares::Colors::WHITE ? 1 : -1);
                 std::cout << "Score: " << std::fixed << std::setprecision(3) << score << " (seldepth " << std::to_string(res.selectiveDepth) << ", depth " << std::to_string(res.depth) << ", " << std::to_string(res.movesAnalyzed) << " positions analyzed)" << std::endl;
-            } else {                                                                    // else, convert the string the
-                move = movestr;                                                         // user entered into a move
+            } else {
+                if (movestr.size() >= 4) {
+                    move = movestr;
+                } else {
+                    if (selPos.isValid()) {
+                        move = BoardMove(selPos, movestr);
+                    } else {
+                        doMove = false;
+                        selPos = movestr;
+                        marked.push_back(std::make_tuple(selPos, 130, 173));
+                        board.forEachMove(selPos, [&marked](BoardMove move) {
+                            marked.push_back(std::make_tuple(move.to, 40, 46));
+                        });
+                    }
+                }
             }
 
-            // Get DetailedMove object; see board/boardmoves.h for explanation
-            if (board.isLegal(move)) {
-                board.move(move);
-            } else {
-                std::cout << "Move not legal!" << std::endl;
+            if (doMove) {
+                if (board.isLegal(move)) {
+                    board.move(move);
+                } else {
+                    std::cout << "Move not legal!" << std::endl;
+                }
+                selPos = BoardPosition(-1, -1);
             }
         }
 

@@ -434,10 +434,11 @@ unsigned long long ChessBoard::_priv_getShortUniqueCacheName() const {
 
 
 
-
-
-
 std::string ChessBoard::toHumanReadable(bool ansi) const {
+    return toHumanReadable(std::vector<std::tuple<BoardPosition, int, int>>(), ansi);
+}
+
+std::string ChessBoard::toHumanReadable(std::vector<std::tuple<BoardPosition, int, int>> marked, bool ansi) const {
     BoardMove lastm = BoardMove(BoardPosition(-1, -1), BoardPosition(-1, -1));
     if (this->moves.size() >= 1) lastm = this->moves.back();
     std::string result;
@@ -449,7 +450,17 @@ std::string ChessBoard::toHumanReadable(bool ansi) const {
             BoardSquare sq = (*this)[pos];
             if (ansi) {
                 result += "\033[38;5;0m";
-                if (lastm.from == pos || lastm.to == pos) {
+                int m1 = -1, m2 = -1;
+                for (std::tuple<BoardPosition, int, int> cur : marked) {
+                    if (std::get<0>(cur) == pos) {
+                        m1 = std::get<1>(cur);
+                        m2 = std::get<2>(cur);
+                        break;
+                    }
+                }
+                if (m1 >= 0 || m2 >= 0) {
+                    result += (i + j) % 2 == 0 ? "\033[48;5;" + std::to_string(m1) + "m" : "\033[48;5;" + std::to_string(m2) + "m";
+                } else if (lastm.from == pos || lastm.to == pos) {
                     result += (i + j) % 2 == 0 ? "\033[48;5;142m" : "\033[48;5;185m";
                 } else {
                     result += (i + j) % 2 == 0 ? "\033[48;5;249m" : "\033[48;5;253m";
@@ -496,44 +507,6 @@ std::string ChessBoard::getInfo(bool ansi) const {
     result += toHumanReadable(ansi);
     return result;
 }
-
-
-
-
-/*ChessBoard::MoveIterator ChessBoard::MoveIterator::end = MoveIterator();
-
-
-ChessBoard::MoveIterator& ChessBoard::LineMoveIterator::operator++() {
-    do {
-        if (rem == 0) return MoveIterator::end;
-        move.to.column += dx;
-        move.to.row += dy;
-        if (!board[move.to].isEmpty()) {
-            if (board.isLegal(move)) return *this;
-            goto skp;
-        }
-        if (!move.to.isValid()) {
-            skp:
-                nextRem();
-                move.to = move.from;
-                continue;
-        }
-    } while (!board.isLegal(move));
-    return *this;
-}
-
-ChessBoard::MoveIterator ChessBoard::getMoves(const BoardPosition pos) const {
-    switch ((*this)[pos].typeId()) {
-        case -1:            // empty
-            return MoveIterator::end;
-        case 0:             // king
-            class {
-
-            } KingIterator;
-            return ArrayMoveIterator();
-
-    }
-}*/
 
 void ChessBoard::forEachMove(const BoardPosition pos, std::function<void (BoardMove)> func) {
     BoardMove move(pos, pos);

@@ -118,6 +118,7 @@ class ChessBoard {
         CacheName getUniqueCacheName() const;
 
         std::string toHumanReadable(bool ansi=false) const;
+        std::string toHumanReadable(std::vector<std::tuple<BoardPosition, int, int>>, bool ansi=false) const;
         std::string getInfo(bool ansi=false) const;
 };
 
