@@ -57,9 +57,9 @@ int main() {
             std::cout << "  cachesize: Display cache size info" << std::endl;
             std::cout << "  check: Display check status" << std::endl;
             std::cout << "  fite: Start a duel between Tanner and Daedrian. Tanner will be the first to play; to make Daedrian go first, use 'go fite'" << std::endl;
-            std::cout << "  go: Make engine play a single move" << std::endl;
-            std::cout << "  go4: Make engine play a custom number of moves" << std::endl;
-            std::cout << "  go4evah: Make engine play forever (actually, 10000 moves)" << std::endl;
+            std::cout << "  go: Make Daedrian play a single move" << std::endl;
+            std::cout << "  go4: Make Daedrian play a custom number of moves" << std::endl;
+            std::cout << "  go4evah: Make Daedrian play forever (actually, 10000 moves)" << std::endl;
             std::cout << "  help: Show this help page" << std::endl;
             std::cout << "  info: Display board position info" << std::endl;
             std::cout << "  legals: Show legal moves for a piece" << std::endl;
