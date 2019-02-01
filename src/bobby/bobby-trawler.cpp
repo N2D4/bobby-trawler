@@ -56,19 +56,42 @@ int main() {
             std::cout << "  back: Take back the most recent move" << std::endl;
             std::cout << "  cachesize: Display cache size info" << std::endl;
             std::cout << "  check: Display check status" << std::endl;
-            std::cout << "  fite: Start a duel between Tanner and Daedrian. Tanner will be the first to play; to make Daedrian go first, use 'go fite'" << std::endl;
-            std::cout << "  go: Make Daedrian play a single move" << std::endl;
-            std::cout << "  go4: Make Daedrian play a custom number of moves" << std::endl;
-            std::cout << "  go4evah: Make Daedrian play forever (actually, 10000 moves)" << std::endl;
+            std::cout << "  fite: Start a duel between Tanner and Daedrian. Daedrian will be the first to play; to make Tanner go first, use 'go fite'" << std::endl;
+            std::cout << "  go: Make Tanner play a single move" << std::endl;
+            std::cout << "  go4: Make Tanner play a custom number of moves" << std::endl;
+            std::cout << "  go4evah: Make Tanner play forever (actually, 10000 moves)" << std::endl;
             std::cout << "  help: Show this help page" << std::endl;
             std::cout << "  info: Display board position info" << std::endl;
             std::cout << "  legals: Show legal moves for a piece" << std::endl;
+            std::cout << "  place: Place a piece" << std::endl;
             std::cout << "  rem: Remove a piece" << std::endl;
             std::cout << "  resetcache: Empty the cache" << std::endl;
             std::cout << "  score: Display raw material score" << std::endl;
             std::cout << "  swcol: Switch current color" << std::endl;
             std::cout << "  undo: Alias for back" << std::endl;
-            std::cout << "Available aliases are b(ack), g(o), h(elp), i(nfo), r(em), sc(ore)" << std::endl;
+            std::cout << "  wipe: Remove all pieces except kings" << std::endl;
+            std::cout << "Available aliases are b(ack), g(o), h(elp), i(nfo), p(lace), r(em), sc(ore)" << std::endl;
+        } else if (movestr == "place" || movestr == "p") {
+            std::string instr;
+            std::cout << "Placing a piece. Color: (W/B) ";
+            std::cin >> instr;
+            BoardSquare::Color color = instr == "W" ? BoardSquares::Colors::WHITE : BoardSquares::Colors::BLACK;
+            std::cout << "Type: (K/Q/R/B/N/P) ";
+            std::cin >> instr;
+            BoardSquare::Type type = instr == "K" ? BoardSquares::Types::KING :
+                                     instr == "Q" ? BoardSquares::Types::QUEEN :
+                                     instr == "R" ? BoardSquares::Types::ROOK :
+                                     instr == "B" ? BoardSquares::Types::BISHOP :
+                                     instr == "N" ? BoardSquares::Types::KNIGHT :
+                                                    BoardSquares::Types::PAWN;
+            std::cout << "Position: ";
+            std::cin >> instr;
+            BoardPosition pos = instr;
+            board[pos] = BoardSquare(color, type);
+            if (type == BoardSquares::Types::KING) {
+                board.kingPos[color] = pos;
+            }
+            std::cout << "Placed the piece!" << std::endl;
         } else if (movestr == "rem" || movestr == "r") {
             std::cout << "Removing a piece. Position: ";
             std::string remstr;
@@ -89,6 +112,15 @@ int main() {
             std::cout << "Material score: " << board.getMaterialScore() << std::endl;
         } else if (movestr == "info" || movestr == "i") {
             std::cout << board.getInfo(true) << std::endl;
+        } else if (movestr == "wipe") {
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    if (board.squares[i][j].type() != BoardSquares::Types::KING) {
+                        board.squares[i][j] = BoardSquares::EMPTY;
+                    }
+                }
+            }
+            std::cout << "Wiped the board!" << std::endl;
         } else if (movestr == "cachesize") {
             std::cout << "Cache size (Tanner): " << tanner.getMemoizationCount() << " entries" << std::endl;
             std::cout << "Cache size (Daedrian): " << daedrian.getMemoizationCount() << " entries" << std::endl;
@@ -116,7 +148,7 @@ int main() {
             BoardMove move = "a1a1";
             if (--goRemaining >= 0 || movestr == "go" || movestr == "g") {                                         // If the AI should play...
                 std::cout << "As a perfect AI, I choose... " << std::flush;
-                ChessEngine& engine = isFighting && goRemaining % 2 == 1 ? (ChessEngine&) tanner : (ChessEngine&) daedrian;
+                ChessEngine& engine = isFighting && goRemaining % 2 == 1 ? (ChessEngine&) daedrian : (ChessEngine&) tanner;
                 ChessEngine::CalculatedMove res = engine.findBestMove();   // ...ask the AI for the move
                 move = res.move;
                 std::cout << std::string(move) << "!" << std::endl;
