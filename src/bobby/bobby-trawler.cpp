@@ -29,6 +29,7 @@ int main() {
     TannerEngine tanner(board);
     int goRemaining = 0;   // number of moves the AI should play automatically instead of asking the user
     bool isFighting = false;
+    long long totalCalcTimeMs = 0;
     while (true) {
         // Print out board and message if check
         std::cout << board.toHumanReadable(marked, true) << std::endl;
@@ -54,6 +55,7 @@ int main() {
             std::cout << "==== AVAILABLE COMMANDS ====" << std::endl;
             std::cout << "  A#A#P: 4 character move, whereas A is a character from a-h, # a number from 1-8 and P is optionally a promoted piece (Q/R/B/N, default Q)" << std::endl;
             std::cout << "  back: Take back the most recent move" << std::endl;
+            std::cout << "  benchstats: Display benchmarking stats" << std::endl;
             std::cout << "  cachesize: Display cache size info" << std::endl;
             std::cout << "  check: Display check status" << std::endl;
             std::cout << "  fite: Start a duel between Tanner and Daedrian. Daedrian will be the first to play; to make Tanner go first, use 'go fite'" << std::endl;
@@ -143,13 +145,18 @@ int main() {
                 std::cout << std::string(move) << std::endl;
                 marked.push_back(std::make_tuple(move.to, 40, 46));
             });
+        } else if (movestr == "benchstats") {
+            std::cout << "Time spent by the engines: " << totalCalcTimeMs << "ms" << std::endl;
         } else {
             bool doMove = true;
             BoardMove move = "a1a1";
             if (--goRemaining >= 0 || movestr == "go" || movestr == "g") {                                         // If the AI should play...
                 std::cout << "As a perfect AI, I choose... " << std::flush;
                 ChessEngine& engine = isFighting && goRemaining % 2 == 1 ? (ChessEngine&) daedrian : (ChessEngine&) tanner;
+                auto start = std::chrono::system_clock::now();
                 ChessEngine::CalculatedMove res = engine.findBestMove();   // ...ask the AI for the move
+                auto end = std::chrono::system_clock::now();
+                totalCalcTimeMs += std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
                 move = res.move;
                 std::cout << std::string(move) << "!" << std::endl;
                 float score = res.score * (board.curColor == BoardSquares::Colors::WHITE ? 1 : -1);
