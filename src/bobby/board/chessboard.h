@@ -5,6 +5,7 @@
 #include <vector>
 #include <cstdint>
 #include <iterator>
+#include <functional>
 #include "boardsquare.h"
 #include "boardposition.h"
 #include "boardmoves.h"
