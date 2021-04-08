@@ -114,7 +114,7 @@ class ChessBoard {
 
             return score;
         }
-        constexpr float getBoardScore(BoardSquare::Color color) const { return color == BoardSquares::Colors::WHITE ? getBoardScore() : -getBoardScore(); }
+        const float getBoardScore(BoardSquare::Color color) const { return color == BoardSquares::Colors::WHITE ? getBoardScore() : -getBoardScore(); }
         constexpr int getPieceCount() const { return this->pieceCount; }
 
         /**
