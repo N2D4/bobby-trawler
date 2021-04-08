@@ -15,7 +15,7 @@ class DaedrianEngine : ChessEngine {
     private:
         std::unordered_map<ChessBoard::CacheName, std::pair<float, int>> memoizedPositions;
 
-        ChessEngine::CalculatedMove findBestMove(float selwidth, float seldec, int depth, int nextDepth);
+        ChessEngine::CalculatedMove findBestMove(float selwidth, float seldec, bool ignoreWidth, int depth, int nextDepth, int remSelDepth);
         std::vector<std::pair<float, BoardMove>> findCandidates(int depth, int count, long& totalBottomLayerMoves);
 
     public:

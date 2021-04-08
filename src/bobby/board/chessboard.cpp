@@ -442,6 +442,7 @@ std::string ChessBoard::toHumanReadable(std::vector<std::tuple<BoardPosition, in
     BoardMove lastm = BoardMove(BoardPosition(-1, -1), BoardPosition(-1, -1));
     if (this->moves.size() >= 1) lastm = this->moves.back();
     std::string result;
+    result += "Board score: " + std::to_string(this->getBoardScore()) + "\n";
     for (int i = 7; i >= 0; i--) {
         result += ('1' + i);
         result += " ";

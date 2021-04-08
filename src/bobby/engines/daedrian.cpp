@@ -9,21 +9,22 @@ int DaedrianEngine::cacheHits[33] = {0};
 
 ChessEngine::CalculatedMove DaedrianEngine::findBestMove() {
     int b = 0;
+    const float seldec = -0.25;
     while (true) {
-        ChessEngine::CalculatedMove tup = findBestMove(3 + b/2.5, 0.3, 4, 3);
-        if (std::abs(tup.score) > 1000 || b >= 30 || tup.movesAnalyzed >= 600000) return tup;
+        ChessEngine::CalculatedMove tup = findBestMove(4 + 2*b, seldec, false, 1, 1, 6);
+        if (std::abs(tup.score) > 1000 || b >= 30 || tup.movesAnalyzed >= 2000000) return tup;
         b += 1;
     }
 }
 
-ChessEngine::CalculatedMove DaedrianEngine::findBestMove(float selwidth, float seldec, int depth, int nextDepth) {
+ChessEngine::CalculatedMove DaedrianEngine::findBestMove(float selwidth, float seldec, bool ignoreWidth, int depth, int nextDepth, int remSelDepth) {
     static std::default_random_engine rng(133742);
     static std::normal_distribution<float> random(0.0, 0.00002);
 
     int selw = std::max(1, (int) std::round(selwidth));
     long totalBottomLayerMoves = 0;
 
-    std::vector<std::pair<float, BoardMove>> candidates = findCandidates(depth, selw, totalBottomLayerMoves);
+    std::vector<std::pair<float, BoardMove>> candidates = findCandidates(depth, ignoreWidth ? 9999999 : (remSelDepth <= 1 ? 1 : selw), totalBottomLayerMoves);
 
 
     if (candidates.size() == 1) {
@@ -33,7 +34,7 @@ ChessEngine::CalculatedMove DaedrianEngine::findBestMove(float selwidth, float s
     std::tuple<float, int, BoardMove> best = std::make_tuple(- std::numeric_limits<float>::infinity(), 0, "h7h7");
     for (std::pair<float, BoardMove> pair : candidates) {
         board.move(pair.second);
-            ChessEngine::CalculatedMove nxt = findBestMove(selwidth - seldec, seldec, nextDepth, nextDepth);
+            ChessEngine::CalculatedMove nxt = findBestMove(selwidth - seldec, seldec, !ignoreWidth, nextDepth, nextDepth, remSelDepth - 1);
         board.revert();
         totalBottomLayerMoves += nxt.movesAnalyzed;
         if (-nxt.score > std::get<0>(best)) {
@@ -50,10 +51,9 @@ ChessEngine::CalculatedMove DaedrianEngine::findBestMove(float selwidth, float s
 
 std::vector<std::pair<float, BoardMove>> DaedrianEngine::findCandidates(int depth, int count, long& totalBottomLayerMoves) {
     static std::default_random_engine rng(133742);
-    static std::normal_distribution<float> random(0.0, 0.00002);
+    static std::normal_distribution<float> random(0.0, 0.000002);
 
     std::vector<std::pair<float, BoardMove>> candidates;
-    candidates.reserve(count);
 
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
@@ -93,7 +93,7 @@ std::vector<std::pair<float, BoardMove>> DaedrianEngine::findCandidates(int dept
                             curScore = mov.first;
                             if (std::abs(curScore) > 1000) curScore *= 0.999;
                         } else {                    // base case
-                            curScore = this->board.getMaterialScore(this->board.curColor);
+                            curScore = this->board.getBoardScore(this->board.curColor);
 
                             // Add some randomness so our computer isn't 100% deterministic
                             curScore += random(rng);
@@ -107,32 +107,19 @@ std::vector<std::pair<float, BoardMove>> DaedrianEngine::findCandidates(int dept
                     curScore = -curScore;
                 }
 
-                // Is this a new top score? If so, save the move
-                if (candidates.size() < count) {
-                    candidates.push_back(std::make_pair(- std::numeric_limits<float>::infinity(), BoardMove("h7h7")));
-                }
-                if (curScore >= candidates.back().first) {
-                    if (candidates.size() == 1) {
-                        candidates[0] = std::make_pair(curScore, move);
-                    }
-                    for (int i = candidates.size() - 2; i >= 0; i--) {
-                        if (curScore < candidates[i].first) {
-                            candidates[i+1] = std::make_pair(curScore, move);
-                            break;
-                        }
-                        candidates[i+1] = candidates[i];
-                        if (i == 0) {
-                            candidates[0] = std::make_pair(curScore, move);
-                        }
-                    }
-                }
-                
+                candidates.push_back(std::make_pair(curScore, move));
 
             });
         }
     }
 
-    return candidates;
+    std::sort(candidates.begin(), candidates.end(), [](const std::pair<float, BoardMove>& a, std::pair<float, BoardMove>& b) -> bool {
+        return a.first > b.first;
+    });
+
+    auto res = std::vector(candidates.begin(), candidates.begin() + std::min((size_t) count, candidates.size()));
+
+    return res;
 
 }
 

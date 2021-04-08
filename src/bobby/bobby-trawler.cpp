@@ -7,13 +7,13 @@ int main() {
     std::cout << "Type uci, then follow up with isready to get started" << std::endl;
 
     // Do the UCI stuff (it's how we talk to the UI)
-    waitforcmd("uci");
+    // waitforcmd("uci");
     std::cout << "id name BobbyTrawler" << std::endl;
     std::cout << "id author some cool people" << std::endl;
     std::cout << "uciok" << std::endl;
 
     // Tell the GUI we're ready
-    waitforcmd("isready");
+    // waitforcmd("isready");
     std::cout << "readyok" << std::endl;
 
     std::cout << "Alright! Now enter a 4-character move, eg. 'e2e4', 'back' to take a move back, or 'go' to ask the engine. Type help for more" << std::endl;
@@ -25,6 +25,7 @@ int main() {
     ChessBoard board = ChessBoard();
     BoardPosition selPos(-1, -1);
     std::vector<std::tuple<BoardPosition, int, int>> marked;
+    bool doTanner = true;
     DaedrianEngine daedrian(board);
     TannerEngine tanner(board);
     int goRemaining = 0;   // number of moves the AI should play automatically instead of asking the user
@@ -59,9 +60,9 @@ int main() {
             std::cout << "  cachesize: Display cache size info" << std::endl;
             std::cout << "  check: Display check status" << std::endl;
             std::cout << "  fite: Start a duel between Tanner and Daedrian. Daedrian will be the first to play; to make Tanner go first, use 'go fite'" << std::endl;
-            std::cout << "  go: Make Tanner play a single move" << std::endl;
-            std::cout << "  go4: Make Tanner play a custom number of moves" << std::endl;
-            std::cout << "  go4evah: Make Tanner play forever (actually, 10000 moves)" << std::endl;
+            std::cout << "  go: Make the engine play a single move" << std::endl;
+            std::cout << "  go4: Make the engine play a custom number of moves" << std::endl;
+            std::cout << "  go4evah: Make the engine play forever (actually, 10000 moves)" << std::endl;
             std::cout << "  help: Show this help page" << std::endl;
             std::cout << "  info: Display board position info" << std::endl;
             std::cout << "  legals: Show legal moves for a piece" << std::endl;
@@ -70,9 +71,13 @@ int main() {
             std::cout << "  resetcache: Empty the cache" << std::endl;
             std::cout << "  score: Display raw material score" << std::endl;
             std::cout << "  swcol: Switch current color" << std::endl;
+            std::cout << "  sweng: Switch engine between Tanner and Daedrian (default: Tanner)" << std::endl;
             std::cout << "  undo: Alias for back" << std::endl;
             std::cout << "  wipe: Remove all pieces except kings" << std::endl;
             std::cout << "Available aliases are b(ack), g(o), h(elp), i(nfo), p(lace), r(em), sc(ore)" << std::endl;
+        } else if (movestr == "sweng" || movestr == "p") {
+            doTanner = !doTanner;
+            std::cout << "Switched engine to " << (doTanner ? "Tanner" : "Daedrian") << "!" << std::endl;
         } else if (movestr == "place" || movestr == "p") {
             std::string instr;
             std::cout << "Placing a piece. Color: (W/B) ";
@@ -150,9 +155,10 @@ int main() {
         } else {
             bool doMove = true;
             BoardMove move = "a1a1";
-            if (--goRemaining >= 0 || movestr == "go" || movestr == "g") {                                         // If the AI should play...
-                std::cout << "As a perfect AI, I choose... " << std::flush;
-                ChessEngine& engine = isFighting && goRemaining % 2 == 1 ? (ChessEngine&) daedrian : (ChessEngine&) tanner;
+            if (--goRemaining >= 0 || movestr == "go" || movestr == "g") {      // If the AI should play...
+                bool isTanner = isFighting ? goRemaining % 2 == 1 : doTanner;
+                std::cout << "As a perfect AI, " << (isTanner ? "Tanner" : "Daedrian") << " chooses... " << std::flush;
+                ChessEngine& engine = !isTanner ? (ChessEngine&) daedrian : (ChessEngine&) tanner;
                 auto start = std::chrono::system_clock::now();
                 ChessEngine::CalculatedMove res = engine.findBestMove();   // ...ask the AI for the move
                 auto end = std::chrono::system_clock::now();

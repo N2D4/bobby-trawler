@@ -7,7 +7,7 @@ int TannerEngine::cacheCalls[33] = {0};
 int TannerEngine::cacheHits[33] = {0};
 
 ChessEngine::CalculatedMove TannerEngine::findBestMove() {
-    int depth = 5;
+    int depth = 6;
     while (true) {
         ChessEngine::CalculatedMove tup = this->findBestMove(depth);
         if (tup.score > 1000 || tup.depth >= 30 || tup.movesAnalyzed >= 60000) return tup;
@@ -17,7 +17,7 @@ ChessEngine::CalculatedMove TannerEngine::findBestMove() {
 
 ChessEngine::CalculatedMove TannerEngine::findBestMove(int depth) {
     static std::default_random_engine rng(133742);
-    static std::normal_distribution<float> random(0.0, 0.00002);
+    static std::normal_distribution<float> random(0.0, 0.000002);
 
     float bestScore = NAN;
     BoardMove bestMove = "e2e4";
@@ -59,10 +59,11 @@ ChessEngine::CalculatedMove TannerEngine::findBestMove(int depth) {
                         if (depth > 1) {            // recurse deeper
                             int n;
                             ChessEngine::CalculatedMove cres = this->findBestMove(depth - 1);
-                            curScore = cres.score * 0.999;
+                            curScore = cres.score;
+                            if (std::abs(curScore) > 1000) curScore *= 0.999;
                             totalBottomLayerMoves += cres.movesAnalyzed;
                         } else {                    // base case
-                            curScore = this->board.getMaterialScore(this->board.curColor);
+                            curScore = this->board.getBoardScore(this->board.curColor);
 
                             // Add some randomness so our computer isn't 100% deterministic
                             curScore += random(rng);

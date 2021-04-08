@@ -3,7 +3,7 @@ SHELL = /bin/bash
 CPPC = g++
 CPPFLAGS = -I src/bobby -std=c++17 -O3
 
-SRC_DIR := src
+SRC_DIR := src/bobby
 OBJ_DIR := out/obj
 CPP_FILES := $(shell find $(SRC_DIR) -type f -name *.cpp)
 H_FILES := $(shell find $(SRC_DIR) -type f -name *.h)
@@ -13,6 +13,9 @@ OBJ_SRC_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/src/%.o,$(CPP_FILES))
 
 out/BobbyTrawler: $(OBJ_SRC_FILES)
 	$(CPPC) $^ -o $@
+
+out/BobbyTrawler.wasm: $(OBJ_SRC_FILES) out/wasm.obj
+	$(EMC) $^ -o $@
 
 
 $(OBJ_DIR)/src/%.o: $(SRC_DIR)/%.cpp $(H_FILES)

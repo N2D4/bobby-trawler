@@ -65,39 +65,6 @@ class ChessBoard {
         void moveDetailed(const DetailedMove& move);
         void revert();
 
-        /*class MoveIterator : public std::iterator<std::input_iterator_tag, BoardMove> {
-            private:
-                constexpr MoveIterator() { }
-            public:
-                static MoveIterator end;
-                virtual MoveIterator& operator++();
-                virtual MoveIterator operator++(int);
-                constexpr bool operator==(const MoveIterator& rhs) const { return (*this == end && rhs == end); }
-                constexpr bool operator!=(const MoveIterator& rhs) const { return !(*this == rhs); }
-                virtual BoardMove& operator*();
-
-        };
-        class LineMoveIterator : MoveIterator {
-            private:
-                ChessBoard& board;
-                BoardMove move;
-                int dx, dy;
-                int rem;
-            public:
-                constexpr LineMoveIterator(ChessBoard& board, const BoardPosition pos, const int rem) : board(board), move(pos, pos), rem(rem), dx(0), dy(0) { nextRem(); operator++(); }
-                constexpr LineMoveIterator(const LineMoveIterator& it) : board(it.board), move(it.move), rem(it.rem), dx(it.dx), dy(it.dy) { }
-                inline void nextRem() { rem &= rem - 1; int r = __builtin_ctz(rem); dx = r % 3 - 1; dy = r / 3 - 1; }
-                MoveIterator& operator++() override;
-                inline MoveIterator operator++(int) override { LineMoveIterator tmp(*this); operator++(); return tmp; }
-                BoardMove& operator*() override { return move; }
-        };
-        template <int N>
-        class ArrayMoveIterator : MoveIterator {
-            private:
-                ChessBoard& board;
-                BoardPosition[N] arr;
-        };*/
-        //MoveIterator getMoves(const BoardPosition pos) const;
         void forEachMove(const BoardPosition pos, std::function<void (BoardMove)> func);
 
         inline bool isCheck() const { return isCheck(this->curColor); }
@@ -107,6 +74,47 @@ class ChessBoard {
 
         constexpr float getMaterialScore() const { return this->materialScore; }
         constexpr float getMaterialScore(BoardSquare::Color color) const { return color == BoardSquares::Colors::WHITE ? getMaterialScore() : -getMaterialScore(); }
+        constexpr float getBoardScore() const {
+            float score = getMaterialScore();
+            int pieceCount = getPieceCount();
+            int moveCount = this->moves.size();
+
+            // Opening tweaks
+            if (moveCount < 10) {
+                float openingScore = 0;
+
+                // Pawns to the center!
+                if ((*this)["d4"] == BoardSquares::WHITE_PAWN) openingScore += 0.15;
+                if ((*this)["e4"] == BoardSquares::WHITE_PAWN) openingScore += 0.15;
+                if ((*this)["d5"] == BoardSquares::BLACK_PAWN) openingScore -= 0.15;
+                if ((*this)["e5"] == BoardSquares::BLACK_PAWN) openingScore -= 0.15;
+
+                // Knights to the center, too
+                if ((*this)["c3"] == BoardSquares::WHITE_KNIGHT) openingScore += 0.1;
+                if ((*this)["f3"] == BoardSquares::WHITE_KNIGHT) openingScore += 0.1;
+                if ((*this)["c6"] == BoardSquares::BLACK_KNIGHT) openingScore -= 0.1;
+                if ((*this)["f6"] == BoardSquares::BLACK_KNIGHT) openingScore -= 0.1;
+
+                // Bishops can attack in various ways
+                if ((*this)["c4"] == BoardSquares::WHITE_BISHOP) openingScore += 0.07;
+                if ((*this)["f4"] == BoardSquares::WHITE_BISHOP) openingScore += 0.07;
+                if ((*this)["c5"] == BoardSquares::BLACK_BISHOP) openingScore -= 0.07;
+                if ((*this)["f5"] == BoardSquares::BLACK_BISHOP) openingScore -= 0.07;
+                if ((*this)["b5"] == BoardSquares::WHITE_BISHOP && (*this)["c6"] == BoardSquares::BLACK_KNIGHT) openingScore += 0.05;
+                if ((*this)["g5"] == BoardSquares::WHITE_BISHOP && (*this)["f6"] == BoardSquares::BLACK_KNIGHT) openingScore += 0.05;
+                if ((*this)["b4"] == BoardSquares::BLACK_BISHOP && (*this)["c3"] == BoardSquares::WHITE_KNIGHT) openingScore -= 0.05;
+                if ((*this)["g4"] == BoardSquares::BLACK_BISHOP && (*this)["f3"] == BoardSquares::WHITE_KNIGHT) openingScore -= 0.05;
+
+                score += openingScore;
+            }
+
+            // The fewer pieces there are, the more significant is the score
+            // TODO exponential increase?
+            score *= 1 + (32 - pieceCount) * 0.025;
+
+            return score;
+        }
+        constexpr float getBoardScore(BoardSquare::Color color) const { return color == BoardSquares::Colors::WHITE ? getBoardScore() : -getBoardScore(); }
         constexpr int getPieceCount() const { return this->pieceCount; }
 
         /**
