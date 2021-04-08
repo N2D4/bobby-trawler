@@ -74,7 +74,7 @@ class ChessBoard {
 
         constexpr float getMaterialScore() const { return this->materialScore; }
         constexpr float getMaterialScore(BoardSquare::Color color) const { return color == BoardSquares::Colors::WHITE ? getMaterialScore() : -getMaterialScore(); }
-        constexpr float getBoardScore() const {
+        const float getBoardScore() const {
             float score = getMaterialScore();
             int pieceCount = getPieceCount();
             int moveCount = this->moves.size();
