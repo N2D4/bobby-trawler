@@ -2,7 +2,7 @@
 #define BOBBY_TRAWLER_SQUARE_BOARDSQUARES_H_
 
 #include <iostream>
-#include "various/intstruct.h"
+#include "../various/intstruct.h"
 
 struct BoardSquares;
 

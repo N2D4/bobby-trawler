@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>My First HTML</title>
+    <meta charset="UTF-8">
+    <script src="./out/BobbyTrawler.js"></script>
+    <script>
+        async function wait(ms) {
+            return await new Promise((resolve) => setTimeout(resolve, ms));
+        }
+
+        let api;
+        Module.onRuntimeInitialized = async _ => {
+            api = {
+                move: Module.cwrap('move', null, ['number', 'number', 'number', 'number']),
+                askTanner: Module.cwrap('askTanner', 'number', []),
+            };
+            tannerMove();
+        };
+
+        function tannerMove() {
+            const move = api.askTanner();
+            console.log(`Tanner's response: ${move}`);
+            const m = [move/8/8/8 | 0, move/8/8%8 | 0, move/8%8 | 0, move%8];
+            document.getElementById("log").innerText += 'abcdefgh'[m[0]] + (1 + m[1]) + 'abcdefgh'[m[2]] + (1 + m[3]) + '\n';
+            api.move(...m);
+        }
+    </script>
+</head>
+
+<body>
+    If the console contains errors, compile the WASM build using `emscripten` first (`emsdk` needs to be installed): `make out/BobbyTrawler.js`
+    <div id="log"></div>
+    <button type="button" onclick="tannerMove()">Make Tanner move</button>
+</body>
+
+</html>

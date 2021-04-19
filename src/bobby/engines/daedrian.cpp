@@ -117,7 +117,7 @@ std::vector<std::pair<float, BoardMove>> DaedrianEngine::findCandidates(int dept
         return a.first > b.first;
     });
 
-    auto res = std::vector(candidates.begin(), candidates.begin() + std::min((size_t) count, candidates.size()));
+    std::vector<std::pair<float, BoardMove>> res(candidates.begin(), candidates.begin() + std::min((size_t) count, candidates.size()));
 
     return res;
 
