@@ -1,5 +1,5 @@
 # bobby-trawler
-Just another chess computer. Heavy WIP
+Just another chess computer. Fight me here: [chess.cronge.co](https://chess.cronge.co)
 
 
 
