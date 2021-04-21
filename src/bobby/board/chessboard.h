@@ -80,7 +80,7 @@ class ChessBoard {
             int moveCount = this->moves.size();
 
             // Opening tweaks
-            if (moveCount < 10) {
+            if (moveCount <= 16) {
                 float openingScore = 0;
 
                 // Pawns to the center!
@@ -136,7 +136,7 @@ namespace std {
     struct hash<ChessBoard::CacheName>
     {
         std::size_t operator()(const ChessBoard::CacheName& k) const {
-            return 31 * (31 * (713 + k.a) + k.b) + k.c;
+            return k.a ^ k.b ^ k.c;
         }
     };
 }

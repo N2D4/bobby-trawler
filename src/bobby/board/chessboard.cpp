@@ -317,7 +317,7 @@ int ChessBoard::cacheNameCalls[33] = {0};
 ChessBoard::CacheName ChessBoard::getUniqueCacheName() const {
     int pieceCount = getPieceCount();
 
-    CacheName result = _priv_getUniqueCacheName();
+    ChessBoard::CacheName result = _priv_getUniqueCacheName();
     if (pieceCount <= 32 && pieceCount >= 0) {
         ChessBoard::cacheNameCalls[pieceCount]++;
         if (!result.isInvalid()) ChessBoard::cacheNameHits[pieceCount]++;
@@ -329,16 +329,14 @@ ChessBoard::CacheName ChessBoard::getUniqueCacheName() const {
 ChessBoard::CacheName ChessBoard::_priv_getUniqueCacheName() const {
     uint64_t a = 0, b = 0, c = 0;
     uint64_t *p = &b;
-    int pos = 0;
     int nonEmpty = 0;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             BoardSquare square = squares[i][j];
             if (!square.isEmpty()) {
-                a |= 1 << pos;
-                if (nonEmpty >= 18) {
+                a |= (uint64_t) 1 << (8*i + j);
+                if (nonEmpty == 17) {
                     p = &c;
-                    nonEmpty = 0;
                 }
                 *p *= 2;
                 *p += square.colorId();
@@ -346,7 +344,6 @@ ChessBoard::CacheName ChessBoard::_priv_getUniqueCacheName() const {
                 *p += square.typeId();
                 nonEmpty++;
             }
-            pos++;
         }
     }
 
@@ -355,8 +352,10 @@ ChessBoard::CacheName ChessBoard::_priv_getUniqueCacheName() const {
     c |= (uint64_t) allowCastlingQueenside.white << 61;
     c |= (uint64_t) allowCastlingKingside.black << 60;
     c |= (uint64_t) allowCastlingQueenside.black << 59;
-    const DetailedMove& mback = moves.back();
-    c |= (uint64_t) (mback.type == DetailedMove::MoveType::PAWN_DOUBLE ? 0b1000 | mback.to.column : 0) << 55;
+    if (moves.size() >= 1) {
+        const DetailedMove& mback = moves.back();
+        c |= (uint64_t) (mback.type == DetailedMove::MoveType::PAWN_DOUBLE ? 0b1000 | mback.to.column : 0) << 55;
+    }
 
     if (nonEmpty > 32) return CacheName();
     else return CacheName(a, b, c);

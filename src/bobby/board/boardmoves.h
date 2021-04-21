@@ -37,6 +37,7 @@ struct BoardMove {
     BoardPosition to;
     BoardSquare::Type promoteTo;
 
+    //constexpr BoardMove() : BoardMove(BoardPosition(-1, -1), BoardPosition(-1, -1)) { }
     constexpr BoardMove(BoardPosition from, BoardPosition to, BoardSquare::Type promoteTo) : from(from), to(to), promoteTo(promoteTo) { }
     constexpr BoardMove(BoardPosition from, BoardPosition to) : BoardMove(from, to, BoardSquares::Types::QUEEN) { }
 

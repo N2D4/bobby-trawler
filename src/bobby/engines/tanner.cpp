@@ -6,18 +6,43 @@ TannerEngine::TannerEngine(ChessBoard& board) : board(board) { }
 int TannerEngine::cacheCalls[33] = {0};
 int TannerEngine::cacheHits[33] = {0};
 
+int minDepth = 5;
+
 ChessEngine::CalculatedMove TannerEngine::findBestMove() {
-    int depth = 6;
+    int depth = minDepth;
     while (true) {
         ChessEngine::CalculatedMove tup = this->findBestMove(depth);
-        if (tup.score > 1000 || tup.depth >= 30 || tup.movesAnalyzed >= 60000) return tup;
+        if (tup.score > 1000 || depth >= 30 || tup.calculationEffort >= 2500000) return tup;
         depth += 1;
     }
 }
 
 ChessEngine::CalculatedMove TannerEngine::findBestMove(int depth) {
-    static std::default_random_engine rng(133742);
-    static std::normal_distribution<float> random(0.0, 0.000002);
+    static std::default_random_engine rng(421337);
+    static std::normal_distribution<float> random(0.0, 0.00002);
+
+    // Check for caching
+    ChessBoard::CacheName cacheName = board.getUniqueCacheName();
+    if (!cacheName.isInvalid()) {
+        int pieceCount = board.getPieceCount();
+        if (pieceCount <= 32) {
+            cacheCalls[pieceCount]++;
+        }
+        std::unordered_map<ChessBoard::CacheName, std::tuple<float, int, int, BoardMove>>::iterator cacheEntry = memoizedPositions.find(cacheName);
+        int cacheDepth = std::get<1>(cacheEntry->second);
+        if (cacheEntry != memoizedPositions.end() && cacheDepth >= depth) {
+            // We found a cache entry!
+            if (pieceCount <= 32) {
+                cacheHits[pieceCount]++;
+            }
+            BoardMove move = std::get<3>(cacheEntry->second);
+            float score = std::get<0>(cacheEntry->second);
+            score *= std::pow(0.999, depth - cacheDepth);
+            int skippedEffort = std::get<2>(cacheEntry->second);
+            return ChessEngine::CalculatedMove(move, score, 0, depth, cacheDepth, skippedEffort);
+        }
+    }
+
 
     float bestScore = NAN;
     BoardMove bestMove = "e2e4";
@@ -29,50 +54,24 @@ ChessEngine::CalculatedMove TannerEngine::findBestMove(int depth) {
             if (board.squares[i][j].color() != board.curColor) continue;
             board.forEachMove(BoardPosition(i, j), [this, depth, &bestScore, &bestMove, &totalBottomLayerMoves] (BoardMove move) {
                 float curScore = 0;
-                totalBottomLayerMoves += 1;
                 this->board.move(move);
                 {
-                    bool nd = true;
-                    // Check for caching
-                    ChessBoard::CacheName cacheName;
-                    if (depth > 1) {
-                        cacheName = board.getUniqueCacheName();
-                    }
-                    if (!cacheName.isInvalid()) {
-                        int pieceCount = board.getPieceCount();
-                        if (pieceCount <= 32) {
-                            cacheCalls[pieceCount]++;
-                        }
-                        std::unordered_map<ChessBoard::CacheName, std::pair<float, int>>::iterator cacheEntry = memoizedPositions.find(cacheName);
-                        if (cacheEntry != memoizedPositions.end() && cacheEntry->second.second >= depth) {
-                            // We found a cache entry!
-                            if (pieceCount <= 32) {
-                                cacheHits[pieceCount]++;
-                            }
-                            curScore = cacheEntry->second.first;
-                            curScore *= std::pow(0.999, depth - cacheEntry->second.second);
-                            nd = false;
-                        }
-                    }
-                    if (nd) {
-                        // Calculate board score
-                        if (depth > 1) {            // recurse deeper
-                            int n;
-                            ChessEngine::CalculatedMove cres = this->findBestMove(depth - 1);
-                            curScore = cres.score;
-                            if (std::abs(curScore) > 1000) curScore *= 0.999;
-                            totalBottomLayerMoves += cres.movesAnalyzed;
-                        } else {                    // base case
-                            curScore = this->board.getBoardScore(this->board.curColor);
+                    int analyzed = 0;
 
-                            // Add some randomness so our computer isn't 100% deterministic
-                            curScore += random(rng);
-                        }
+                    // Calculate board score
+                    if (depth > 1) {            // recurse deeper
+                        ChessEngine::CalculatedMove cres = this->findBestMove(depth - 1);
+                        curScore = cres.score;
+                        if (std::abs(curScore) > 1000) curScore *= 0.999;
+                        analyzed = cres.movesAnalyzed;
+                    } else {                    // base case
+                        curScore = this->board.getBoardScore(this->board.curColor);
+                        analyzed = 1;
 
-                        if (!cacheName.isInvalid()) {
-                            memoizedPositions[cacheName] = std::make_pair(curScore, depth);
-                        }
+                        // Add some randomness so our computer isn't 100% deterministic
+                        curScore += random(rng);
                     }
+                    totalBottomLayerMoves += analyzed;
                     this->board.revert();
                     curScore = -curScore;
                 }
@@ -91,12 +90,26 @@ ChessEngine::CalculatedMove TannerEngine::findBestMove(int depth) {
         bestScore = this->board.isCheck() ? -10000 + random(rng) : 0;
     }
 
+
+    if (!cacheName.isInvalid()) {
+        auto value = std::make_tuple(bestScore, depth, totalBottomLayerMoves, bestMove);
+        auto result = memoizedPositions.insert(std::make_pair(cacheName, value));
+        if (!result.second) { result.first->second = value; }
+    }
+
     return ChessEngine::CalculatedMove(bestMove, bestScore, totalBottomLayerMoves, depth);
 }
 
 
 
 
+std::optional<std::tuple<float, int, int, BoardMove>> TannerEngine::getMemoization() const {
+    auto cacheName = board.getUniqueCacheName();
+    if (cacheName.isInvalid()) return std::nullopt;
+    auto cacheEntry = memoizedPositions.find(cacheName);
+    if (cacheEntry == memoizedPositions.end()) return std::nullopt;
+    return {cacheEntry->second};
+}
 
 int TannerEngine::getMemoizationCount() const {
     return memoizedPositions.size();
@@ -104,7 +117,7 @@ int TannerEngine::getMemoizationCount() const {
 
 
 void TannerEngine::resetMemoizations() {
-    memoizedPositions = std::unordered_map<ChessBoard::CacheName, std::pair<float, int>>();
+    memoizedPositions = std::unordered_map<ChessBoard::CacheName, std::tuple<float, int, int, BoardMove>>();
 }
 
 

@@ -128,9 +128,22 @@ int main() {
                 }
             }
             std::cout << "Wiped the board!" << std::endl;
+        } else if (movestr == "cache") {
+            std::cout << "Cache name: " << std::string(board.getUniqueCacheName()) << std::endl;
+            auto tannerCacheRes = tanner.getMemoization();
+            if (!tannerCacheRes) {
+                std::cout << "Tanner doesn't have this position in cache!" << std::endl;
+            } else {
+                std::cout << "Cache result for current position (Tanner): score=" << std::get<0>(tannerCacheRes.value()) << " depth=" << std::get<1>(tannerCacheRes.value()) << " effort=" << std::get<2>(tannerCacheRes.value()) << " move=" << std::string(std::get<3>(tannerCacheRes.value())) << " " <<  std::endl;
+            }
         } else if (movestr == "cachesize") {
             std::cout << "Cache size (Tanner): " << tanner.getMemoizationCount() << " entries" << std::endl;
             std::cout << "Cache size (Daedrian): " << daedrian.getMemoizationCount() << " entries" << std::endl;
+            std::cout << "Cache hit rates (Tanner):" << std::endl;
+            for (int i = 0; i < 33; i++) {
+                if (tanner.cacheCalls[i] <= 0) continue;
+                std::cout << "  " + std::to_string(i) + ": " + std::to_string(100.0 * tanner.cacheHits[i] / (float) tanner.cacheCalls[i]) + "% of " + std::to_string(tanner.cacheCalls[i]) << std::endl;
+            }
             std::cout << "Cache hit rates (Daedrian):" << std::endl;
             for (int i = 0; i < 33; i++) {
                 if (daedrian.cacheCalls[i] <= 0) continue;

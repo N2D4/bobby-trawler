@@ -16,9 +16,11 @@ class ChessEngine {
             int depth;
             int selectiveDepth;
             long movesAnalyzed;
+            long calculationEffort;
 
             constexpr CalculatedMove(const BoardMove move, const float score, const int movesAnalyzed, const int depth) : CalculatedMove(move, score, movesAnalyzed, depth, depth) { }
-            constexpr CalculatedMove(const BoardMove move, const float score, const int movesAnalyzed, const int depth, const int selectiveDepth) : move(move), score(score), movesAnalyzed(movesAnalyzed), depth(depth), selectiveDepth(selectiveDepth) { }
+            constexpr CalculatedMove(const BoardMove move, const float score, const int movesAnalyzed, const int depth, const int selectiveDepth) : CalculatedMove(move, score, movesAnalyzed, depth, selectiveDepth, movesAnalyzed) { }
+            constexpr CalculatedMove(const BoardMove move, const float score, const int movesAnalyzed, const int depth, const int selectiveDepth, const int calculationEffort) : move(move), score(score), movesAnalyzed(movesAnalyzed), depth(depth), selectiveDepth(selectiveDepth), calculationEffort(calculationEffort) { }
         };
 
         virtual CalculatedMove findBestMove() = 0;

@@ -7,13 +7,14 @@
 #include <random>
 #include "../board/chessboard.h"
 #include "engine.h"
+#include "../board/boardmoves.h"
 
 /**
  * The Tanner brute-force engine.
  */
 class TannerEngine : ChessEngine {
     private:
-        std::unordered_map<ChessBoard::CacheName, std::pair<float, int>> memoizedPositions;
+        std::unordered_map<ChessBoard::CacheName, std::tuple<float, int, int, BoardMove>> memoizedPositions;
 
     public:
         ChessBoard& board;
@@ -25,6 +26,7 @@ class TannerEngine : ChessEngine {
         ChessEngine::CalculatedMove findBestMove();
         ChessEngine::CalculatedMove findBestMove(int depth);
 
+        std::optional<std::tuple<float, int, int, BoardMove>> getMemoization() const;
         int getMemoizationCount() const;
         void resetMemoizations();
 };

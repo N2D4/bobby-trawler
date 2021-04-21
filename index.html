@@ -30,7 +30,7 @@
 </head>
 
 <body>
-    If the console contains errors, compile the WASM build using `emscripten` first (`emsdk` needs to be installed): `make out/BobbyTrawler.js`
+    If the console contains errors, a) make sure this page is served on a local HTTP server (eg. with `npx serve`) and not just as a file in the browser, and b) compile the WASM build using `emscripten` first (`emsdk` needs to be installed): `make out/BobbyTrawler.js`
     <div id="log"></div>
     <button type="button" onclick="tannerMove()">Make Tanner move</button>
 </body>
