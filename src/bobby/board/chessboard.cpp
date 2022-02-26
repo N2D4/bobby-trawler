@@ -208,7 +208,7 @@ bool ChessBoard::isSquareAttacked(BoardSquare::Color by, BoardPosition position)
 
             BoardSquare sq = (*this)[pos];
             if (sq.color() != by) continue;
-            if (!BoardMove(pos, position).isPossibleFor(sq, true)) continue;
+            if (sq.type() != BoardSquares::Types::KNIGHT) continue;
 
             return true;
         }
@@ -217,6 +217,8 @@ bool ChessBoard::isSquareAttacked(BoardSquare::Color by, BoardPosition position)
     // No threats, no check!
     return false;
 }
+
+bool ChessBoard::isSquareAttackedAfter(BoardSquare::Color by, BoardPosition position, DetailedMove after) const {}
 
 
 

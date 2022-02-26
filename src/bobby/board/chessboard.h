@@ -70,6 +70,7 @@ class ChessBoard {
         inline bool isCheck() const { return isCheck(this->curColor); }
         inline bool isCheck(const BoardSquare::Color color) const { return isSquareAttacked(!color, this->kingPos[color]); }
         bool isSquareAttacked(const BoardSquare::Color color, BoardPosition position) const;
+        bool isSquareAttackedAfter(const BoardSquare::Color color, BoardPosition position, DetailedMove after) const;
         bool isLegal(const BoardMove move);
 
         constexpr float getMaterialScore() const { return this->materialScore; }

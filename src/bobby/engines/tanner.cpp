@@ -9,10 +9,16 @@ int TannerEngine::cacheHits[33] = {0};
 int minDepth = 5;
 
 ChessEngine::CalculatedMove TannerEngine::findBestMove() {
+    return findBestMoveWithMaxEffort(2500000);
+}
+
+ChessEngine::CalculatedMove TannerEngine::findBestMoveWithMaxEffort(int maxCalculationEffort) {
     int depth = minDepth;
     while (true) {
         ChessEngine::CalculatedMove tup = this->findBestMove(depth);
-        if (tup.score > 1000 || depth >= 30 || tup.calculationEffort >= 2500000) return tup;
+        // note: if we were to compare tup.movesAnalyzed instead of tup.calculationEffort, undo-ing and then
+        // asking the engine again would make the engine increase depth by 1 every time, which is exponentially slow
+        if (tup.score > 1000 || depth >= 30 || tup.calculationEffort >= maxCalculationEffort) return tup;
         depth += 1;
     }
 }

@@ -2,7 +2,7 @@ SHELL = /bin/bash
 
 CPPC = g++
 EMC = em++
-CPPFLAGS = -I src/bobby -std=c++17 -O3
+CPPFLAGS = -g -I src/bobby -std=c++17 -O3
 
 SRC_DIR := src/bobby
 OBJ_DIR := out/obj

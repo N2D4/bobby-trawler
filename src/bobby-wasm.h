@@ -18,7 +18,8 @@
 
 extern "C" {
     void move(int fromRow, int fromCol, int toRow, int toCol);
-    int askTanner();
+    int askTanner(int maxCalculationEffort);
+    void newGame();
 }
 
 
